@@ -3,16 +3,16 @@
  * - Set of strucs, definitions, and initializations for building and manipulating matrix's.
  * - ToDO
  * 1) Make matrix structure
- *   - rows, colmns
+ *   - rows, colmns, type
  *   - array holding data
- * 2) Array initializer
- * 3) Array destructor
- * 4) Add Arrays
- *    - Add array and scalar
- * 5) Subtract arrays
- *    - Sub array and scalar
+ * 2) Matrix initializer
+ * 3) Matrix destructor
+ * 4) Add Matrix
+ *    - Add Matrix and scalar
+ * 5) Subtract Martix
+ *    - Sub matrix and scalar
  * 6) Dot product
- *    - Multiply array and scalar
+ *    - Multiply Matrix and scalar
  * 7) Transpose
  * 8) Determinant
  * 9) Inverse
@@ -26,9 +26,7 @@
 typedef struct{
     int row;
     int col;
-    int data_size;
-    int data_type; // 0 - int, 1 - double, 2 - float, 3 - char, 4 - long, anything else - int.
-    void *data;
+    float **data;
 }matrix;
 
 //Pass in a matrix and initialize its data to all zeros.
@@ -37,26 +35,30 @@ int initMatrix_Zeros(matrix *mat);
 //Initialize a matrix with data passed in.
 //If data is too small to fill the matrix, then 0's will be appended, where their is no data.
 //Data is pushed to top left of matrix
-int initMatrix_Data(matrix *mat, void *dat);
+int initMatrix_Data(matrix *mat, float **dat);
 
 //Pointer to matrix so we can free the data at '**data'
 // Returns 0 for success, -1 for failure.
 int delMatrix(matrix *mat);
 
+//Clone one matrix into another.
+// m1 == m2
+int cloneMatrix(matrix *m1, matrix *m2);
+
 //Adds m1 and m2 like so
 // m1 = m1 + m2
-// Pass 0 for type matrix, 1 for other, int, float, double, etc.
-int addMatrix(matrix *m1, void *m2, int type);
+int addMatrix(matrix *m1, matrix *m2);
+int addScalar(matrix *m1, float d2);
 
 //Subtracts m1 and m2 like so
 // m1 = m1 - m2
-// Pass 0 for type matrix, 1 for other, int, float, double, etc.
-int subMatrix(matrix *m1, void *m2, int type);
+int subMatrix(matrix *m1, matrix *m2);
+int subScalar(matrix *m1, float d2);
 
 //Multiply m1 and m2 like so
 // m1 = m1 * m2
-// Pass 0 for type matrix, 1 for other, int, float, double, etc.
-int mulMatrix(matrix *m1, void *m2, int type);
+int mulMatrix(matrix *m1, matrix *m2);
+int mulScalar(matrix *m1, float d2);
 
 //Transpose matrix that is passed in.
 int transMatrix(matrix *m1);
