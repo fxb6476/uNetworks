@@ -35,7 +35,10 @@ int initMatrix_Zeros(matrix *mat);
 //Initialize a matrix with data passed in.
 //If data is too small to fill the matrix, then 0's will be appended, where their is no data.
 //Data is pushed to top left of matrix
-int initMatrix_Data(matrix *mat, float **dat);
+int initMatrix_Data(matrix *mat, float dat[][3], int row, int col);
+
+//Initializes matrix to identity matrix, pushed to top left...
+int initMatrix_Identity(matrix *mat);
 
 //Pointer to matrix so we can free the data at '**data'
 // Returns 0 for success, -1 for failure.
@@ -57,13 +60,14 @@ int subScalar(matrix *m1, float d2);
 
 //Multiply m1 and m2 like so
 // m1 = m1 * m2
-int mulMatrix(matrix *m1, matrix *m2);
+int dotMatrix(matrix *m1, matrix *m2);
 int mulScalar(matrix *m1, float d2);
 
 //Transpose matrix that is passed in.
 int transMatrix(matrix *m1);
 
 //Output the determinant
+//Crappy, slow way using laplace expantion.
 float determineMatrix(matrix *m1);
 
 //Crappy way of computing the inverse of a matrix.

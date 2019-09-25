@@ -17,6 +17,47 @@ int initMatrix_Zeros(matrix *mat){
     }
     return 0;
 }
+int initMatrix_Data(matrix *mat, float dat[][3], int row, int col){
+    mat->data = (float **)malloc(mat->row * sizeof(float *));
+    for(int i = 0; i < mat->row; i++) {
+        mat->data[i] = (float *)malloc(mat->col * sizeof(float));
+    }
+
+    int min_row = (mat->row > row) ? row : mat->row;
+    int min_col = (mat->col > col) ? col : mat->col;
+    //printf("Min_row %d Min_col %d\n", min_row, min_col);
+
+    for(int i=0; i < min_row; i++){
+        for(int j=0; j < min_col; j++){
+            mat->data[i][j] = dat[i][j];
+        }
+    }
+
+    for(int i=0; i < mat->row; i++){
+        for(int j=0; j < mat->col; j++){
+            if( i >= min_row || j >= min_col ){
+                mat->data[i][j] = 0.0;
+            }
+        }
+    }
+
+    return 0;
+}
+int initMatrix_Identity(matrix *mat){
+    mat->data = (float **)malloc(mat->row * sizeof(float *));
+    for(int i = 0; i < mat->row; i++) {
+        mat->data[i] = (float *)malloc(mat->col * sizeof(float));
+    }
+
+    for(int i=0; i < mat->row; i++){
+        for(int j=0; j < mat->col; j++){
+            mat->data[i][j] = (i == j) ? 1.0 : 0.0;
+        }
+    }
+
+    return 0;
+}
+
 int delMatrix(matrix *mat){
     for(int i=0; i < mat->row; i++){
         free(mat->data[i]);
@@ -67,6 +108,17 @@ int subMatrix(matrix *m1, matrix *m2){
         }
     }
 
+    return 0;
+}
+int mulScalar(matrix *m1, float d2){
+    for(int i=0; i < m1->row; i++){
+        for(int j=0; j < m1->col; j++){
+            m1->data[i][j] *= d2;
+        }
+    }
+    return 0;
+}
+int dotMatrix(matrix *m1, matrix *m2){
     return 0;
 }
 
