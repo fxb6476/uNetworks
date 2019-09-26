@@ -119,6 +119,58 @@ int mulScalar(matrix *m1, float d2){
     return 0;
 }
 int dotMatrix(matrix *m1, matrix *m2){
+    //printf("Rows - %d, Cols - %d\n", m2->row, m1->col);
+    if (m1->col != m2->row){
+        printf("Error (Dot Product): Matrix 1 cols must equal matrix 2 rows\n");
+        return -1;
+    }
+
+    //Create tmp data with new mem-architecture.
+    int tmp_row = m1->row;
+    int tmp_col = m2->col;
+    float **tmp = (float **)malloc(tmp_row * sizeof(float *));
+    for(int i=0; i < tmp_row; i++){
+        tmp[i] = (float *)malloc(tmp_col * sizeof(float));
+    }
+
+    //Perform calcs and assign data to new tmp matrix.
+    for(int i=0; i < tmp_row; i++){
+        for(int j=0; j < tmp_col; j++){
+            float count = 0.0;
+
+            for(int k=0; k < m1->col; k++){
+                count += (m1->data[i][k] * m2->data[k][j]);
+            }
+            //printf("%.1f\n", count);
+            tmp[i][j] = count;
+        }
+    }
+
+    //Delete m1's old mem-architecture...
+    for(int i=0; i < m1->row; i++){
+        free(m1->data[i]);
+    }
+
+    //Make new mem-architecture...
+    m1->row = tmp_row;
+    m1->col = tmp_col;
+    m1->data = (float **)malloc(m1->row * sizeof(float *));
+    for(int i = 0; i < m1->row; i++) {
+        m1->data[i] = (float *)malloc(m1->col * sizeof(float));
+    }
+
+    //Copy tmp data into new m1 matrix with new mem-architecture...
+    for(int i=0; i < m1->row; i++){
+        for(int j=0; j < m1->col; j++){
+            m1->data[i][j] = tmp[i][j];
+        }
+    }
+
+    //Free tmp data because we are all done...
+    for(int i=0; i < tmp_row; i++){
+        free(tmp[i]);
+    }
+    free(tmp);
     return 0;
 }
 

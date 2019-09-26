@@ -77,4 +77,13 @@ matrix invertMatrix(matrix *m1);
 //Does a 'pretty' print of the matrix, for debugging purposes.
 void printMatrix(matrix *m1);
 
+//Reshape takes in a matrix and rearranges it to another architecture.
+//Reads the matrix from top left to bottom right...
+/*
+    The reshaping will fail if the new rows and cols values,
+    do not equal the number of original entries.
+    --- og_rows * og_cols === new_rows *new_cols
+*/
+int reshapeMatrix(matrix *m1, int n_rows, int n_cols);
+
 #endif

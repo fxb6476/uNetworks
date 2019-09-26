@@ -6,32 +6,39 @@
 
 int main(){
 
-    matrix m1 = {2, 4};
-    matrix m2 = {3, 7};
-    matrix m3 = {2, 2};
+    // A Volume will be an array of matricies, or pointer to mem block of structs
+    // Do dynamic allocation
+    int vol_size = 6;
+    matrix *image = malloc(vol_size * sizeof(matrix));
 
-    // A Volume will be an array of matricies.
-    matrix image[3] = {m1, m2, m3};
+    for(int i=0; i < vol_size; i++) {
+        image[i].col = 3;
+        image[i].row = 3;
+        initMatrix_Identity(&image[i]);
 
-    float data[][3] = {{1.0, 0.0, 0.0},
-                       {0.0, 1.0, 0.0},
-                       {0.0, 0.0, 1.0}};
-
-    matrix m4 = {5, 5};
-    matrix m5 = {4, 4};
-
-    initMatrix_Data(&m4, data, 3, 3);
-    initMatrix_Identity(&m5);
-
-    printMatrix(&m5);
-
-    for(int i=0; i < 3; i++){
-        initMatrix_Zeros(&image[i]);
-        //printMatrix(&image[i]);
+        printf("Printing matrix %d of volume...\n", i);
+        printMatrix(&image[i]);
+        printf("\n");
         delMatrix(&image[i]);
     }
 
+    float data[][3] = {{1.0, 2.0, 3.0},
+                       {4.0, 5.0, 6.0},
+                       {7.0, 8.0, 9.0}};
+
+    matrix m4 = {3, 3};
+    initMatrix_Data(&m4, data, 3, 3);
+
+    matrix m5 = {3, 3};
+    initMatrix_Identity(&m5);
+
+    dotMatrix(&m4, &m5);
+    printMatrix(&m4);
+    printMatrix(&m5);
+
+    //Clean up...
     delMatrix(&m4);
+    delMatrix(&m5);
 
     return 0;
 }
