@@ -72,7 +72,7 @@ float determineMatrix(matrix *m1);
 
 //Crappy way of computing the inverse of a matrix.
 //The inverse is computed using the 'minor matrix method'.
-matrix invertMatrix(matrix *m1);
+//matrix invertMatrix(matrix *m1);
 
 //Does a 'pretty' print of the matrix, for debugging purposes.
 void printMatrix(matrix *m1);

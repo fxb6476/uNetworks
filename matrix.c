@@ -68,7 +68,7 @@ int delMatrix(matrix *mat){
 int cloneMatrix(matrix *m1, matrix *m2){
 
     return 0;
-}
+}  /// Not done yet!!
 
 int addScalar(matrix *m1, float d2){
     for(int i=0; i < m1->row; i++){
@@ -227,3 +227,6 @@ void printMatrix(matrix *mat){
         printf("|\n");
     }
 }
+int reshapeMatrix(matrix *m1, int n_rows, int n_cols){
+    return 0;
+} /// Not done yet!!
