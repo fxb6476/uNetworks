@@ -16,7 +16,7 @@ typedef struct{
 
 typedef struct{
     int n_layers;
-    int *layer_sizes;
+    int layer_sizes[100];
     neuron **neuron_matrix;
 }FF_ANN;
 
@@ -30,5 +30,8 @@ int delANN(FF_ANN *net);
 //This uses the logistic activation function = 1/(1+e^(-z))...
 //The cost function will be squared error (target - estimated output)^2
 int trainANN(FF_ANN *net, float *input, float *output);
+
+//Debugging network printer...
+void printANN(FF_ANN *net);
 
 #endif

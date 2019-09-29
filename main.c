@@ -3,9 +3,11 @@
 #include <math.h>
 #include <stdlib.h>
 #include "matrix.h"
+#include "ann.h"
 
 int main(){
 
+    /* UNCOMMENT THIS TO TESTS THE MATRIX's
     // A Volume will be an array of matricies, or pointer to mem block of structs
     // Do dynamic allocation
     int vol_size = 6;
@@ -43,6 +45,14 @@ int main(){
     //Clean up...
     delMatrix(&m4);
     delMatrix(&m5);
+    */
+
+    // TESTING THE FF_ANN
+    FF_ANN ann1 = {3, {3, 2, 1}};
+
+    initANN(&ann1);
+    printANN(&ann1);
+    delANN(&ann1);
 
     return 0;
 }
