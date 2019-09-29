@@ -2,21 +2,7 @@
  * Felix Blanco
  * - Set of strucs, definitions, and initializations for building and manipulating matrix's.
  * - ToDO
- * 1) Make matrix structure
- *   - rows, colmns, type
- *   - array holding data
- * 2) Matrix initializer
- * 3) Matrix destructor
- * 4) Add Matrix
- *    - Add Matrix and scalar
- * 5) Subtract Martix
- *    - Sub matrix and scalar
- * 6) Dot product
- *    - Multiply Matrix and scalar
- * 7) Transpose
- * 8) Determinant
- * 9) Inverse
- * 9) Pretty print Matrix, for debugging.
+ * 1)
  */
 
 #pragma once
@@ -85,5 +71,7 @@ void printMatrix(matrix *m1);
     --- og_rows * og_cols === new_rows *new_cols
 */
 int reshapeMatrix(matrix *m1, int n_rows, int n_cols);
+int flatHorizMatrix(matrix *m1);
+int flatVertMatrix(matrix *m1);
 
 #endif

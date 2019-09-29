@@ -66,9 +66,31 @@ int delMatrix(matrix *mat){
     return 0;
 }
 int cloneMatrix(matrix *m1, matrix *m2){
+    //Delete everything in m1...
+    for(int i=0; i < m1->row; i++){
+        free(m1->data[i]);
+    }
+
+    //Copy new row and column values from m2 to m1...
+    m1->row = m2->row;
+    m1->col = m2->col;
+
+    //Remake m1 mem-architecture...
+    m1->data = (float **)malloc(m1->row * sizeof(float *));
+    for(int i = 0; i < m1->row; i++) {
+        m1->data[i] = (float *)malloc(m1->col * sizeof(float));
+    }
+
+    //Copy data from m2 to m1...
+    //Copy temporary data into new matrix...
+    for(int i=0; i < m1->row; i++){
+        for(int j=0; j < m1->col; j++){
+            m1->data[i][j] = m2->data[i][j];
+        }
+    }
 
     return 0;
-}  /// Not done yet!!
+}
 
 int addScalar(matrix *m1, float d2){
     for(int i=0; i < m1->row; i++){
@@ -228,5 +250,56 @@ void printMatrix(matrix *mat){
     }
 }
 int reshapeMatrix(matrix *m1, int n_rows, int n_cols){
+    if( (n_rows * n_cols) != (m1->row * m1->col)){
+        printf("Error (Reshape): new colmns * new rows must = old colmns * old rows\n");
+        return -1;
+    }
+
+    //Create tmp array...
+    float *tmp = malloc(m1->row * m1->col * sizeof(float));
+    int tmp_count = 0;
+
+    //Copy old matrix data to temp array...
+    for(int i=0; i < m1->row; i++){
+        for(int j=0; j < m1->col; j++){
+            tmp[tmp_count] = m1->data[i][j];
+            tmp_count++;
+        }
+    }
+
+    //Delete old memory architecture in 'matrix->data'...
+    for(int i=0; i < m1->row; i++){
+        free(m1->data[i]);
+    }
+
+    //Reset count...
+    //Overwrite matrix row and col parameters to the new ones.
+    tmp_count = 0;
+    m1->row = n_rows;
+    m1->col = n_cols;
+
+    //Create new matrix with new mem-architecture...
+    m1->data = (float **)malloc(m1->row * sizeof(float *));
+    for(int i = 0; i < m1->row; i++) {
+        m1->data[i] = (float *)malloc(m1->col * sizeof(float));
+    }
+
+    //Copy temporary data into new matrix...
+    for(int i=0; i < m1->row; i++){
+        for(int j=0; j < m1->col; j++){
+            m1->data[i][j] = tmp[tmp_count];
+            tmp_count++;
+        }
+    }
+
+    free(tmp);
     return 0;
-} /// Not done yet!!
+}
+int flatHorizMatrix(matrix *m1){
+    reshapeMatrix(m1, 1, m1->row * m1-> col);
+    return 0;
+}
+int flatVertMatrix(matrix *m1) {
+    reshapeMatrix(m1, m1->row * m1-> col, 1);
+    return 0;
+}

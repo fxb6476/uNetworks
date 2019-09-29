@@ -34,6 +34,10 @@ int main(){
 
     dotMatrix(&m4, &m5);
     printMatrix(&m4);
+
+    flatHorizMatrix(&m4);
+    cloneMatrix(&m5, &m4);
+    printMatrix(&m4);
     printMatrix(&m5);
 
     //Clean up...
