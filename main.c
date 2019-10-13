@@ -48,7 +48,7 @@ int main(){
     */
 
     // TESTING THE FF_ANN
-    FF_ANN ann1 = {4, {4, 3, 2, 1}};
+    FF_ANN ann1 = {4, {10, 3, 2, 1}};
 
     if(initANN(&ann1)) return -1;
     printANN(&ann1);

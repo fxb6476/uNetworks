@@ -10,7 +10,7 @@
 #ifndef ann_h
 
 typedef struct{
-    float weight;
+    float *weights;
     float bias;
 }neuron;
 
