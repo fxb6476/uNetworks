@@ -5,26 +5,24 @@
 #include <stdlib.h>
 #include "ann.h"
 
-/*typedef struct{
-    float weight;
-    float bias;
-}neuron;
-
-typedef struct{
-    int n_layers;
-    int layer_sizes[];
-    neuron **neuron_matrix;
-}FF_ANN;*/
-
 //Init neuron matrix by putting random weights into network neurons.
 int initANN(FF_ANN *net){
     if(net->n_layers > 100){
-        printf("Error (initANN) - You can not have more than 100 layers, its just not supported!")
-        return -1;
+        printf("Error (initANN) - You can not have more than 100 layers, its just not supported!\n");
+        return 1;
     }
 
     //Init random number generator. Always generates with different seed.
     srand((long)time(NULL));
+
+    //Checking if layers are less than a predefined value.
+    for(int i=0; i < net->n_layers; i++){
+        //printf("Size of layer %d is %d...\n", i+1, net->layer_sizes[i]);
+        if (net->layer_sizes[i] == 0){
+            printf("ERROR (Layer size) - Layer %d is 0, layers can not be size 0!\n", i+1);
+            return 1;
+        }
+    }
 
     //Create initial matrix of neurons...
     //Architecture is defined by number of layers, including input and output & the size of each layer (count of neurons in each layer).
