@@ -8,30 +8,31 @@
 
 #pragma once
 #ifndef ann_h
-
-typedef struct{
-    float *weights;
-    float bias;
-}neuron;
+#include "matrix.h"
 
 typedef struct{
     int n_layers;
     int layer_sizes[100];
-    neuron **neuron_matrix;
-}FF_ANN;
+    float *layer_biases;
+    matrix *weights_matrix;
+}FC_ANN;
 
 //Init neuron matrix by putting random weights into network neurons.
-int initANN(FF_ANN *net);
+int initANN(FC_ANN *net);
 
 //Delete network by freeing matrix and array for layer size.
-int delANN(FF_ANN *net);
+int delANN(FC_ANN *net);
 
 //Train network by feeding data through the network, and use output error to change weights.
 //This uses the logistic activation function = 1/(1+e^(-z))...
 //The cost function will be squared error (target - estimated output)^2
-int trainANN(FF_ANN *net, float *input, float *output);
+
+//Feeds data through ANN and returns matrix's of outputs for each layer.
+matrix * feedANN(FC_ANN *net, float *input, int input_size);
+
+void activationFunc(matrix *m1);
 
 //Debugging network printer...
-void printANN(FF_ANN *net);
+void printANN(FC_ANN *net);
 
 #endif

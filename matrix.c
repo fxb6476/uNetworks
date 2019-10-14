@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include <math.h>
 #include <stdlib.h>
 #include "matrix.h"
@@ -13,6 +14,35 @@ int initMatrix_Zeros(matrix *mat){
     for(int i=0; i < mat->row; i++){
         for(int j=0; j < mat->col; j++){
             mat->data[i][j] = 0.0;
+        }
+    }
+    return 0;
+}
+int initMatrix_Random(matrix *mat){
+
+    srand((long)time(NULL));
+
+    mat->data = (float **)malloc(mat->row * sizeof(float *));
+    for(int i = 0; i < mat->row; i++) {
+        mat->data[i] = (float *)malloc(mat->col * sizeof(float));
+    }
+
+    for(int i=0; i < mat->row; i++){
+        for(int j=0; j < mat->col; j++){
+            mat->data[i][j] = (float)rand() / (float)RAND_MAX ;
+        }
+    }
+    return 0;
+}
+int initMatrix_Ones(matrix *mat){
+    mat->data = (float **)malloc(mat->row * sizeof(float *));
+    for(int i = 0; i < mat->row; i++) {
+        mat->data[i] = (float *)malloc(mat->col * sizeof(float));
+    }
+
+    for(int i=0; i < mat->row; i++){
+        for(int j=0; j < mat->col; j++){
+            mat->data[i][j] = 1.0;
         }
     }
     return 0;

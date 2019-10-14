@@ -1,12 +1,11 @@
 #include <stdio.h>
 #include <string.h>
-#include <time.h>
 #include <math.h>
 #include <stdlib.h>
 #include "ann.h"
 
 //Init neuron matrix by putting random weights into network neurons.
-int initANN(FF_ANN *net){
+int initANN(FC_ANN *net){
     if(net->layer_sizes[0] <= 0){
         printf("Error (initANN) - You cannot have an input layer of 0 or less!\n");
         return 1;
@@ -22,8 +21,6 @@ int initANN(FF_ANN *net){
         return 1;
     }
 
-    //Init random number generator. Always generates with different seed.
-    srand((long)time(NULL));
 
     //Checking if layers are less than a predefined value.
     for(int i=0; i < net->n_layers; i++){
@@ -34,81 +31,120 @@ int initANN(FF_ANN *net){
         }
     }
 
-    //Create initial matrix of neurons...
-    //Architecture is defined by number of layers, including input and output & the size of each layer (count of neurons in each layer).
-    net->neuron_matrix = (neuron **)malloc(net->n_layers * sizeof(neuron *));
-    for(int i=0; i < net->n_layers; i++){
-        net->neuron_matrix[i] = (neuron *)malloc(net->layer_sizes[i] * sizeof(neuron));
-    }
+    //Create pointers to matrix's, each layer is just a matrix of weights...
+    net->weights_matrix = (matrix *)malloc(net->n_layers * sizeof(matrix *));
 
-    //Create dynamic array with number of weights for each neron....
-    //Randomly assign weight values 0 - 1 for each neuron weight.
-    //Also assigns bias of 0.0 for now...
-    //The weight pointer of each neuron, in the input layer, will point to NULL, thus can be free()'ed
-    for(int j=0; j < net->layer_sizes[0]; j++){
-        net->neuron_matrix[0][j].weights = NULL;
-    }
+    //Creating first matrix... Input layer.
+    net->weights_matrix[0].row = net->layer_sizes[0];
+    net->weights_matrix[0].col = 1;
+    initMatrix_Ones(&net->weights_matrix[0]);
 
     for(int i=1; i < net->n_layers; i++){
-        //This selects the layer ^
-        for(int j=0; j < net->layer_sizes[i]; j++){
-                net->neuron_matrix[i][j].weights = (float *)malloc( net->layer_sizes[i-1] * sizeof(float));
-
-                for(int k = 0; k < net->layer_sizes[i-1]; k++){
-                    net->neuron_matrix[i][j].weights[k] = rand()/(float)RAND_MAX;
-                }
-
-                net->neuron_matrix[i][j].bias = 0.0;
-
-        }
+        net->weights_matrix[i].row = net->layer_sizes[i-1];
+        net->weights_matrix[i].col = net->layer_sizes[i];
+        initMatrix_Random(&net->weights_matrix[i]);
     }
 
     return 0;
 }
 
 //Delete network by freeing matrix and array for layer size.
-int delANN(FF_ANN *net){
-    //Delete all weights for each neuron...
-    for(int i=0; i < net->n_layers; i++) {
-        for (int j = 0; j < net->layer_sizes[i]; j++) {
-            free(net->neuron_matrix[i][j].weights);
-        }
+int delANN(FC_ANN *net){
+    //Delete each matrix we are pointing to...
+    for(int i=0; i < net->n_layers; i++){
+        delMatrix(&net->weights_matrix[i]);
     }
 
-    for(int i=0; i < net->n_layers; i++){
-        free(net->neuron_matrix[i]);
-    }
-    free(net->neuron_matrix);
+    //Free out actual pointer.
+    free(net->weights_matrix);
     return 0;
 }
 
 //Train network by feeding data through the network, and use output error to change weights.
 //This uses the logistic activation function = 1/(1+e^(-z))...
 //The cost function will be squared error (target - estimated output)^2
-int trainANN(FF_ANN *net, float *input, float *output){
-    //Output of each neuron will be -> sum of each input times its respective weight added together
-    return 0;
-} /// NOT DONE YET!!!
+
+//Feeds data through ANN and returns matrix's of outputs for each layer.
+matrix * feedANN(FC_ANN *net, float *input, int input_size){
+
+    if ( input_size != net->layer_sizes[0] ){
+        printf("Error (Feed ANN) - Input data must be the same size as layer 1!\n");
+        //ToDo
+        // Need to throw an error here instead of just letting this slide!!
+    }
+
+    printf("\nFeeding Data Through Network.... Stand By!!\n\n");
+
+    matrix *tmp_mat_ptr = (matrix *)malloc(net->n_layers * sizeof(matrix *));
+    tmp_mat_ptr[0].col = net->layer_sizes[0]; tmp_mat_ptr[0].row = 1;
+    initMatrix_Zeros(&tmp_mat_ptr[0]);
+
+    for(int i=0; i < tmp_mat_ptr[0].col; i++){
+        tmp_mat_ptr[0].data[0][i] = input[i];
+    }
+
+    //printf("Printing Output of Layer #%d\n", 0);
+    //printMatrix(&tmp_mat_ptr[0]);
+    //printf("\n");
+
+    for(int i=1; i < net->n_layers; i++){
+        matrix tmp_mat = {1, 1};
+        initMatrix_Ones(&tmp_mat);
+
+        tmp_mat_ptr[i].col = 1; tmp_mat_ptr[i].row = 1;
+        initMatrix_Ones(&tmp_mat_ptr[i]);
+
+        cloneMatrix(&tmp_mat, &tmp_mat_ptr[i-1]);
+
+        dotMatrix(&tmp_mat, &net->weights_matrix[i]);
+
+        activationFunc(&tmp_mat);
+
+        cloneMatrix(&tmp_mat_ptr[i], &tmp_mat);
+
+        delMatrix(&tmp_mat);
+
+        //printf("Printing Output of Layer #%d\n", i);
+        //printMatrix(&tmp_mat_ptr[i]);
+        //printf("\n");
+    }
+
+    initMatrix_Zeros(&tmp_mat_ptr[0]);
+
+    for(int i=0; i < tmp_mat_ptr[0].col; i++){
+        tmp_mat_ptr[0].data[0][i] = input[i];
+    }
+
+    return tmp_mat_ptr;
+}
+
+void activationFunc(matrix *m1){
+    for(int i=0; i < m1->row; i++){
+        for(int j=0; j < m1->col; j++){
+
+            //Activation using sigmoid function.
+            // e^x / (e^x + 1)
+            m1->data[i][j] = exp(m1->data[i][j]) / (exp(m1->data[i][j]) + 1);
+        }
+    }
+}
 
 //Prints the net
-void printANN(FF_ANN *net){
+void printANN(FC_ANN *net){
     printf("------------ Network Topology ------------\n");
-    printf(" * Input Size        = %d\n", net->layer_sizes[0]);
-    printf(" * Output Size       = %d\n", net->layer_sizes[net->n_layers-1]);
-    printf(" * Num Hidden Layers = %d\n", net->n_layers);
+    printf(" * Input Size         = %d\n", net->layer_sizes[0]);
+    printf(" * Output Size        = %d\n", net->layer_sizes[net->n_layers-1]);
+    printf(" * Num Hidden Layers  = %d\n", net->n_layers);
+    printf(" * Hidden layer Sizes = | ");
+    for(int i=0; i < net->n_layers; i++){
+        printf("%d ", net->layer_sizes[i]);
+    }
+    printf("|\n");
     printf("------------------------------------------\n");
     printf("------------------------------------------\n\n");
     printf("------------ Network Weights -------------\n");
-    for(int i=1; i < net->n_layers; i++) {
+    for(int i=0; i < net->n_layers; i++) {
         printf("------------ Hidden Layer #%d ------------ \n", i);
-        for (int j = 0; j < net->layer_sizes[i]; j++) {
-
-            printf("Neuron #%d --> | ", j+1);
-            for(int k=0; k < net->layer_sizes[i-1]; k++){
-                printf("%.4f ", net->neuron_matrix[i][j].weights[k]);
-            }
-            printf("| Bias = %.4f |\n", net->neuron_matrix[i][j].bias);
-        }
-        printf("\n");
+        printMatrix(&net->weights_matrix[i]);
     }
 }

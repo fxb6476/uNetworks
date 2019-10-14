@@ -17,6 +17,8 @@ typedef struct{
 
 //Pass in a matrix and initialize its data to all zeros.
 int initMatrix_Zeros(matrix *mat);
+int initMatrix_Random(matrix *mat);
+int initMatrix_Ones(matrix *mat);
 
 //Initialize a matrix with data passed in.
 //If data is too small to fill the matrix, then 0's will be appended, where their is no data.

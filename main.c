@@ -48,10 +48,23 @@ int main(){
     */
 
     // TESTING THE FF_ANN
-    FF_ANN ann1 = {4, {10, 3, 2, 1}};
+    FC_ANN ann1 = {4, {5, 4, 3, 1}};
+    float data[] = {1.43, 8.11, 9.999, 10.1234, 22.2222};
 
     if(initANN(&ann1)) return -1;
     printANN(&ann1);
+
+    matrix *outputs = feedANN(&ann1, data, 5);
+
+    for(int i=0; i < ann1.n_layers; i++){
+        printf("Printing Output of Layer #%d\n", i);
+        printMatrix(&outputs[i]);
+        printf("\n");
+        delMatrix(&outputs[i]);
+    }
+
+    free(outputs);
+
     delANN(&ann1);
 
     return 0;
