@@ -60,10 +60,6 @@ int delANN(FC_ANN *net){
     return 0;
 }
 
-//Train network by feeding data through the network, and use output error to change weights.
-//This uses the logistic activation function = 1/(1+e^(-z))...
-//The cost function will be squared error (target - estimated output)^2
-
 //Feeds data through ANN and returns matrix's of outputs for each layer.
 matrix * feedANN(FC_ANN *net, float *input, int input_size){
 
@@ -75,12 +71,20 @@ matrix * feedANN(FC_ANN *net, float *input, int input_size){
 
     printf("\nFeeding Data Through Network.... Stand By!!\n\n");
 
-    matrix *tmp_mat_ptr = (matrix *)malloc(net->n_layers * sizeof(matrix *));
-    tmp_mat_ptr[0].col = net->layer_sizes[0]; tmp_mat_ptr[0].row = 1;
+    matrix *tmp_mat_ptr = malloc(sizeof(matrix) * net->n_layers);
+
+    tmp_mat_ptr[0].col = net->layer_sizes[0];
+    tmp_mat_ptr[0].row = 1;
     initMatrix_Zeros(&tmp_mat_ptr[0]);
 
     for(int i=0; i < tmp_mat_ptr[0].col; i++){
         tmp_mat_ptr[0].data[0][i] = input[i];
+    }
+
+    for(int i=1; i < net->n_layers; i++){
+        tmp_mat_ptr[i].row = 1;
+        tmp_mat_ptr[i].col = 1;
+        initMatrix_Zeros(&tmp_mat_ptr[i]);
     }
 
     //printf("Printing Output of Layer #%d\n", 0);
@@ -109,13 +113,68 @@ matrix * feedANN(FC_ANN *net, float *input, int input_size){
         //printf("\n");
     }
 
-    initMatrix_Zeros(&tmp_mat_ptr[0]);
+    return tmp_mat_ptr;
+}
 
-    for(int i=0; i < tmp_mat_ptr[0].col; i++){
-        tmp_mat_ptr[0].data[0][i] = input[i];
+//Back propagation of error through network layers...
+//Using the chain rule method, things are going to get messy :/
+int backProp_ANN(FC_ANN *net, matrix *guessed_outs, float *output, int output_size){
+
+    if ( output_size != net->layer_sizes[net->n_layers-1] ){
+        printf("Error (BackProp ANN) - Output data must be the same size as last layer!\n");
+        //ToDo
+        // Need to throw an error here instead of just letting this slide!!
     }
 
-    return tmp_mat_ptr;
+    printf("\nBack Propagating Through Network.... Stand By!!\n\n");
+
+    matrix tmp_y = {1, net->layer_sizes[net->n_layers-1]};
+    initMatrix_Zeros(&tmp_y);
+
+    for(int i=0; i < tmp_y.row; i++){
+        tmp_y.data[i][0] = output[i];
+    }
+
+    //We will start by just computing the last layers error...
+    matrix tmp_curr_out = {1, 1};
+    initMatrix_Zeros(&tmp_curr_out);
+
+    //Get output of last layer...
+    cloneMatrix(&tmp_curr_out, &guessed_outs[net->n_layers - 1]);
+
+    // 2 * (y - guessed_out)
+    subMatrix(&tmp_y, &tmp_curr_out);
+    mulScalar(&tmp_y, 2.0);
+
+    //sig'(guessed_out)
+    der_of_activ_func(&tmp_curr_out);
+
+    // (2 * (y - guessed out)) * (sig'(guessed_out))
+    for(int i=0; i < tmp_y.row; i++){
+        tmp_y.data[i][0] = tmp_y.data[i][0] * tmp_curr_out.data[i][0];
+    }
+
+    //Getting previous layers output...
+    matrix tmp_prev_out = {1, 1};
+    initMatrix_Zeros(&tmp_prev_out);
+
+    cloneMatrix(&tmp_prev_out, &guessed_outs[net->n_layers - 2]);
+
+    transMatrix(&tmp_prev_out);
+
+    printf("Previous Output Matrix...\n");
+    printMatrix(&tmp_prev_out);
+    printf("\n");
+
+    printf("All the other stuff we will dot productt with...\n");
+    printMatrix(&tmp_y);
+    printf("\n");
+
+    dotMatrix(&tmp_prev_out, &tmp_y);
+    printMatrix(&tmp_prev_out);
+
+    printf("\n");
+    return 0;
 }
 
 void activationFunc(matrix *m1){
@@ -125,6 +184,17 @@ void activationFunc(matrix *m1){
             //Activation using sigmoid function.
             // e^x / (e^x + 1)
             m1->data[i][j] = exp(m1->data[i][j]) / (exp(m1->data[i][j]) + 1);
+        }
+    }
+}
+void der_of_activ_func(matrix *m1){
+    for(int i=0; i < m1->row; i++){
+        for(int j=0; j < m1->col; j++){
+
+            //Derivative of Sigmoid (sig(x)) = sig(x) * (1 - sig(x))
+            //sig(x) = e^x / (e^x + 1)
+            float sigmoid = exp(m1->data[i][j]) / (exp(m1->data[i][j]) + 1);
+            m1->data[i][j] = sigmoid * (1 + sigmoid);
         }
     }
 }
