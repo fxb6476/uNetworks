@@ -58,12 +58,15 @@ int main(){
     matrix *outputs;
     outputs = feedANN(&ann1, data, 5);
 
-    backProp_ANN(&ann1, outputs, out_data, 3);
-
     for(int i=0; i < ann1.n_layers; i++){
         printf("Printing Output of Layer #%d\n", i);
         printMatrix(&outputs[i]);
         printf("\n");
+    }
+
+    backProp_ANN(&ann1, outputs, out_data, 3);
+
+    for(int i=0; i < ann1.n_layers; i++){
         delMatrix(&outputs[i]);
     }
 

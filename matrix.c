@@ -122,15 +122,15 @@ int cloneMatrix(matrix *m1, matrix *m2){
     return 0;
 }
 
-int addScalar(matrix *m1, float d2){
+matrix * addScalar(matrix *m1, float d2){
     for(int i=0; i < m1->row; i++){
         for(int j=0; j < m1->col; j++){
             m1->data[i][j] += d2;
         }
     }
-    return 0;
+    return m1;
 }
-int addMatrix(matrix *m1, matrix *m2){
+matrix * addMatrix(matrix *m1, matrix *m2){
     int min_rows = (m1->row > m2->row) ? m2->row : m1->row;
     int min_cols = (m1->col > m2->col) ? m2->col : m1->col;
 
@@ -140,17 +140,17 @@ int addMatrix(matrix *m1, matrix *m2){
         }
     }
 
-    return 0;
+    return m1;
 }
-int subScalar(matrix *m1, float d2){
+matrix * subScalar(matrix *m1, float d2){
     for(int i=0; i < m1->row; i++){
         for(int j=0; j < m1->col; j++){
             m1->data[i][j] -= d2;
         }
     }
-    return 0;
+    return m1;
 }
-int subMatrix(matrix *m1, matrix *m2){
+matrix * subMatrix(matrix *m1, matrix *m2){
     int min_rows = (m1->row > m2->row) ? m2->row : m1->row;
     int min_cols = (m1->col > m2->col) ? m2->col : m1->col;
 
@@ -160,21 +160,21 @@ int subMatrix(matrix *m1, matrix *m2){
         }
     }
 
-    return 0;
+    return m1;
 }
-int mulScalar(matrix *m1, float d2){
+matrix * mulScalar(matrix *m1, float d2){
     for(int i=0; i < m1->row; i++){
         for(int j=0; j < m1->col; j++){
             m1->data[i][j] *= d2;
         }
     }
-    return 0;
+    return m1;
 }
-int dotMatrix(matrix *m1, matrix *m2){
+matrix * dotMatrix(matrix *m1, matrix *m2){
     //printf("Rows - %d, Cols - %d\n", m2->row, m1->col);
     if (m1->col != m2->row){
         printf("Error (Dot Product): Matrix 1 cols must equal matrix 2 rows\n");
-        return -1;
+        return m1;
     }
 
     //Create tmp data with new mem-architecture.
@@ -223,7 +223,20 @@ int dotMatrix(matrix *m1, matrix *m2){
         free(tmp[i]);
     }
     free(tmp);
-    return 0;
+    return m1;
+}
+matrix * elementMult(matrix *m1, matrix *m2){
+
+    int min_rows = (m1->row > m2->row) ? m2->row : m1->row;
+    int min_cols = (m1->col > m2->col) ? m2->col : m1->col;
+
+    for(int i=0; i < min_rows; i++){
+        for(int j=0; j < min_cols; j++){
+            m1->data[i][j] *= m2->data[i][j];
+        }
+    }
+
+    return m1;
 }
 
 int transMatrix(matrix *mat){

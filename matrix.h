@@ -38,18 +38,19 @@ int cloneMatrix(matrix *m1, matrix *m2);
 
 //Adds m1 and m2 like so
 // m1 = m1 + m2
-int addMatrix(matrix *m1, matrix *m2);
-int addScalar(matrix *m1, float d2);
+matrix * addMatrix(matrix *m1, matrix *m2);
+matrix * addScalar(matrix *m1, float d2);
 
 //Subtracts m1 and m2 like so
 // m1 = m1 - m2
-int subMatrix(matrix *m1, matrix *m2);
-int subScalar(matrix *m1, float d2);
+matrix * subMatrix(matrix *m1, matrix *m2);
+matrix * subScalar(matrix *m1, float d2);
 
 //Multiply m1 and m2 like so
 // m1 = m1 * m2
-int dotMatrix(matrix *m1, matrix *m2);
-int mulScalar(matrix *m1, float d2);
+matrix * elementMult(matrix *m1, matrix *m2);
+matrix * dotMatrix(matrix *m1, matrix *m2);
+matrix * mulScalar(matrix *m1, float d2);
 
 //Transpose matrix that is passed in.
 int transMatrix(matrix *m1);

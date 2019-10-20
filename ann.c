@@ -131,33 +131,46 @@ int backProp_ANN(FC_ANN *net, matrix *guessed_outs, float *output, int output_si
     matrix tmp_y = {1, net->layer_sizes[net->n_layers-1]};
     initMatrix_Zeros(&tmp_y);
 
-    for(int i=0; i < tmp_y.row; i++){
-        tmp_y.data[i][0] = output[i];
+    for(int i=0; i < tmp_y.col; i++){
+        tmp_y.data[0][i] = output[i];
     }
+
+    printf("Real output: \n");
+    printMatrix(&tmp_y);
+    printf("\n");
 
     //We will start by just computing the last layers error...
+    //Get output of last layer...
     matrix tmp_curr_out = {1, 1};
     initMatrix_Zeros(&tmp_curr_out);
-
-    //Get output of last layer...
     cloneMatrix(&tmp_curr_out, &guessed_outs[net->n_layers - 1]);
+    printf("guessed_out: \n");
+    printMatrix(&tmp_curr_out);
+    printf("\n");
 
-    // 2 * (y - guessed_out)
-    subMatrix(&tmp_y, &tmp_curr_out);
-    mulScalar(&tmp_y, 2.0);
+    //Tmp matrix used to catch the current layers output and run it through sig'(x).
+    matrix der_tmp_curr_out = {1, 1};
+    initMatrix_Zeros(&der_tmp_curr_out);
+
+    matrix tmp = {1,1};
+    initMatrix_Zeros(&tmp);
+    cloneMatrix(&tmp, &guessed_outs[net->n_layers-2]);
+    cloneMatrix(&der_tmp_curr_out, dotMatrix(&tmp, &net->weights_matrix[net->n_layers-1]));
+    delMatrix(&tmp);
+
+    printf("Previous output times last weights...: \n");
+    printMatrix(&der_tmp_curr_out);
+    printf("\n");
 
     //sig'(guessed_out)
-    der_of_activ_func(&tmp_curr_out);
-
-    // (2 * (y - guessed out)) * (sig'(guessed_out))
-    for(int i=0; i < tmp_y.row; i++){
-        tmp_y.data[i][0] = tmp_y.data[i][0] * tmp_curr_out.data[i][0];
-    }
+    der_of_activ_func(&der_tmp_curr_out);
+    printf("sig'(previous out * last weights): \n");
+    printMatrix(&der_tmp_curr_out);
+    printf("\n");
 
     //Getting previous layers output...
     matrix tmp_prev_out = {1, 1};
     initMatrix_Zeros(&tmp_prev_out);
-
     cloneMatrix(&tmp_prev_out, &guessed_outs[net->n_layers - 2]);
 
     transMatrix(&tmp_prev_out);
@@ -166,12 +179,7 @@ int backProp_ANN(FC_ANN *net, matrix *guessed_outs, float *output, int output_si
     printMatrix(&tmp_prev_out);
     printf("\n");
 
-    printf("All the other stuff we will dot productt with...\n");
-    printMatrix(&tmp_y);
-    printf("\n");
-
-    dotMatrix(&tmp_prev_out, &tmp_y);
-    printMatrix(&tmp_prev_out);
+    printMatrix(dotMatrix(&tmp_prev_out, elementMult(mulScalar(subMatrix(&tmp_curr_out, &tmp_y), 2.0), &der_tmp_curr_out)));
 
     printf("\n");
     return 0;
@@ -180,21 +188,22 @@ int backProp_ANN(FC_ANN *net, matrix *guessed_outs, float *output, int output_si
 void activationFunc(matrix *m1){
     for(int i=0; i < m1->row; i++){
         for(int j=0; j < m1->col; j++){
-
             //Activation using sigmoid function.
-            // e^x / (e^x + 1)
-            m1->data[i][j] = exp(m1->data[i][j]) / (exp(m1->data[i][j]) + 1);
+            // sig(x) = 1 / (1 + e^(-x))
+            float neg_val = (-1) * m1->data[i][j];
+            m1->data[i][j] = 1 / ( 1 + exp(neg_val) );
         }
     }
 }
 void der_of_activ_func(matrix *m1){
     for(int i=0; i < m1->row; i++){
         for(int j=0; j < m1->col; j++){
+            // sig(x) = 1 / (1 + e^(-x))
+            // Derivative of Sigmoid sig(x) = sig(x) * (1 - sig(x))
+            float neg_val = (-1) * m1->data[i][j];
+            float sigmoid = 1 / ( 1 + exp(neg_val) );
 
-            //Derivative of Sigmoid (sig(x)) = sig(x) * (1 - sig(x))
-            //sig(x) = e^x / (e^x + 1)
-            float sigmoid = exp(m1->data[i][j]) / (exp(m1->data[i][j]) + 1);
-            m1->data[i][j] = sigmoid * (1 + sigmoid);
+            m1->data[i][j] = sigmoid * (1 - sigmoid);
         }
     }
 }
