@@ -20,21 +20,21 @@ int main(){
                           {4.0, 1.0},
                           {10.0, 8.0},
                           {2.0, 1.0}};
-    float out_data[][1] = {{0.0},
-                           {0.0},
-                           {0.0},
-                           {0.0},
+    float out_data[][1] = {{1.0},
                            {1.0},
                            {1.0},
                            {1.0},
-                           {1.0}};
+                           {0.0},
+                           {0.0},
+                           {0.0},
+                           {0.0}};
 
     if(initANN(&ann1)) return -1;
     printANN(&ann1);
 
     matrix *outputs;
 
-    for (int rounds = 0; rounds < 3000; rounds++){
+    for (int rounds = 0; rounds < 1000; rounds++){
 
         printf("------------------------- Round #%d -------------------------\n", rounds);
 
@@ -61,12 +61,12 @@ int main(){
 
     printANN(&ann1);
 
-    float new_data[] = {1.0, 100.0};
+    float new_data[] = {3.0, 2.0};
     printf("Testing on data it has never seen lol %.3f, %.3f...\n", new_data[0], new_data[1]);
 
     outputs = feedANN(&ann1, new_data, 2);
 
-    printf("Predicted class should be 0.0\n");
+    printf("Predicted class should be 1.0\n");
     printf("Networks prediction...\n");
     printMatrix(&outputs[ann1.n_layers-1]);
 
