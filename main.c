@@ -7,7 +7,7 @@
 
 int main(){
 
-    // TESTING THE FF_ANN
+    // TESTING FC_ANN
     FC_ANN ann1 = {3, {2, 3, 1}};
     float in_data[][2] = {{1.0, 1.0},
                           {1.0, 0.0},
