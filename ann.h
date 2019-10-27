@@ -13,7 +13,7 @@
 typedef struct{
     int n_layers;
     int layer_sizes[100];
-    float *layer_biases;
+    matrix *bias;
     matrix *weights_matrix;
 }FC_ANN;
 
@@ -28,7 +28,7 @@ matrix * feedANN(FC_ANN *net, float *input, int input_size);
 
 //Back propagation of error through network layers...
 //Using the chain rule method, things are going to get messy :/
-int backProp_ANN(FC_ANN *net, matrix *guessed_outs, float *output, int output_size);
+int backProp_ANN(FC_ANN *net, matrix *guessed_outs, float *output, int output_size, float learning_rate);
 
 void activationFunc(matrix *m1);
 void der_of_activ_func(matrix *m1);

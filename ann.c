@@ -3,6 +3,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include "ann.h"
+#include <unistd.h>
 
 //Init neuron matrix by putting random weights into network neurons.
 int initANN(FC_ANN *net){
@@ -31,8 +32,31 @@ int initANN(FC_ANN *net){
         }
     }
 
+    //Create pointers to biases, each layer is just a matrix of biases...
+    net->bias = (matrix *)calloc(net->n_layers, sizeof(matrix *));
+
     //Create pointers to matrix's, each layer is just a matrix of weights...
-    net->weights_matrix = (matrix *)malloc(net->n_layers * sizeof(matrix *));
+    net->weights_matrix = (matrix *)calloc(net->n_layers, sizeof(matrix *));
+
+    if (!net->bias){
+        printf("Error could not allocate matrix buffer for bias!\n");
+        return 1;
+    }
+
+    if (!net->weights_matrix){
+        printf("Error could not allocate matrix buffer for weights!\n");
+        return 1;
+    }
+
+    net->bias[0].row = 1;
+    net->bias[0].col = net->layer_sizes[0];
+    initMatrix_Zeros(&net->bias[0]);
+
+    for(int i = 1; i < net->n_layers; i++){
+        net->bias[i].row = 1;
+        net->bias[i].col = net->layer_sizes[i];
+        initMatrix_Ones(&net->bias[i]);
+    }
 
     //Creating first matrix... Input layer.
     net->weights_matrix[0].row = net->layer_sizes[0];
@@ -45,6 +69,7 @@ int initANN(FC_ANN *net){
         initMatrix_Random(&net->weights_matrix[i]);
     }
 
+    printf("Got to the end of init...\n");
     return 0;
 }
 
@@ -55,7 +80,16 @@ int delANN(FC_ANN *net){
         delMatrix(&net->weights_matrix[i]);
     }
 
+    printf("Freed up weights!\n");
+
+    for(int i=0; i < net->n_layers; i++){
+        delMatrix(&net->bias[i]);
+    }
+
+    printf("Freed up bias!\n");
+
     //Free out actual pointer.
+    free(net->bias);
     free(net->weights_matrix);
     return 0;
 }
@@ -69,7 +103,7 @@ matrix * feedANN(FC_ANN *net, float *input, int input_size){
         // Need to throw an error here instead of just letting this slide!!
     }
 
-    printf("\nFeeding Data Through Network.... Stand By!!\n\n");
+    //printf("\nFeeding Data Through Network.... Stand By!!\n\n");
 
     matrix *tmp_mat_ptr = malloc(sizeof(matrix) * net->n_layers);
 
@@ -95,14 +129,9 @@ matrix * feedANN(FC_ANN *net, float *input, int input_size){
         matrix tmp_mat = {1, 1};
         initMatrix_Ones(&tmp_mat);
 
-        tmp_mat_ptr[i].col = 1; tmp_mat_ptr[i].row = 1;
-        initMatrix_Ones(&tmp_mat_ptr[i]);
-
         cloneMatrix(&tmp_mat, &tmp_mat_ptr[i-1]);
 
-        dotMatrix(&tmp_mat, &net->weights_matrix[i]);
-
-        activationFunc(&tmp_mat);
+        activationFunc(addMatrix(dotMatrix(&tmp_mat, &net->weights_matrix[i]), &net->bias[i]));
 
         cloneMatrix(&tmp_mat_ptr[i], &tmp_mat);
 
@@ -118,7 +147,7 @@ matrix * feedANN(FC_ANN *net, float *input, int input_size){
 
 //Back propagation of error through network layers...
 //Using the chain rule method, things are going to get messy :/
-int backProp_ANN(FC_ANN *net, matrix *guessed_outs, float *output, int output_size){
+int backProp_ANN(FC_ANN *net, matrix *guessed_outs, float *output, int output_size, float learning_rate){
 
     if ( output_size != net->layer_sizes[net->n_layers-1] ){
         printf("Error (BackProp ANN) - Output data must be the same size as last layer!\n");
@@ -126,8 +155,9 @@ int backProp_ANN(FC_ANN *net, matrix *guessed_outs, float *output, int output_si
         // Need to throw an error here instead of just letting this slide!!
     }
 
-    printf("\nBack Propagating Through Network.... Stand By!!\n\n");
+    //printf("\nBack Propagating Through Network.... Stand By!!\n\n");
 
+    //Get real outputs we are shooting for...
     matrix tmp_y = {1, net->layer_sizes[net->n_layers-1]};
     initMatrix_Zeros(&tmp_y);
 
@@ -135,75 +165,146 @@ int backProp_ANN(FC_ANN *net, matrix *guessed_outs, float *output, int output_si
         tmp_y.data[0][i] = output[i];
     }
 
-    printf("Real output: \n");
-    printMatrix(&tmp_y);
+    matrix summed_error = {1,1};
+    initMatrix_Ones(&summed_error);
+    cloneMatrix(&summed_error, &guessed_outs[net->n_layers-1]);
+    subMatrix(&summed_error, &tmp_y);
+
+    printf("Output Error Matrix.\n");
+    printMatrix(&summed_error);
     printf("\n");
 
-    //We will start by just computing the last layers error...
-    //Get output of last layer...
-    matrix tmp_curr_out = {1, 1};
-    initMatrix_Zeros(&tmp_curr_out);
-    cloneMatrix(&tmp_curr_out, &guessed_outs[net->n_layers - 1]);
-    printf("guessed_out: \n");
-    printMatrix(&tmp_curr_out);
-    printf("\n");
+    //float total_error = 0.0;
+    //for(int i = 0; i < summed_error.row; i++){
+    //    for(int j = 0; j < summed_error.col; j++){
+    //        total_error = total_error + (summed_error.data[i][j] * summed_error.data[i][j]);
+    //    }
+    //}
 
-    //Tmp matrix used to catch the current layers output and run it through sig'(x).
-    matrix der_tmp_curr_out = {1, 1};
-    initMatrix_Zeros(&der_tmp_curr_out);
+    //printf("\nCurrent squared summed output error = %.9f!\n", total_error);
+    delMatrix(&summed_error);
 
-    matrix tmp = {1,1};
-    initMatrix_Zeros(&tmp);
-    cloneMatrix(&tmp, &guessed_outs[net->n_layers-2]);
-    cloneMatrix(&der_tmp_curr_out, dotMatrix(&tmp, &net->weights_matrix[net->n_layers-1]));
-    delMatrix(&tmp);
+    matrix cost_with_respect_to_last_layer = {1,1};
+    initMatrix_Zeros(&cost_with_respect_to_last_layer);
 
-    printf("Previous output times last weights...: \n");
-    printMatrix(&der_tmp_curr_out);
-    printf("\n");
+    for(int round = net->n_layers - 1; round > 0; round--){
 
-    //sig'(guessed_out)
-    der_of_activ_func(&der_tmp_curr_out);
-    printf("sig'(previous out * last weights): \n");
-    printMatrix(&der_tmp_curr_out);
-    printf("\n");
+        //printf("------------------- Layer %d -------------------\n", round);
 
-    //Getting previous layers output...
-    matrix tmp_prev_out = {1, 1};
-    initMatrix_Zeros(&tmp_prev_out);
-    cloneMatrix(&tmp_prev_out, &guessed_outs[net->n_layers - 2]);
+        //This holds the change in the current layers weights.
+        matrix change_in_weights = {1,1};
+        initMatrix_Zeros(&change_in_weights);
 
-    transMatrix(&tmp_prev_out);
+        //Last layer of the network has the simplest formula for calculating change in weights and dC/da^(L-1).
+        matrix zeta = {1,1};
+        matrix place_holder = {1,1};
+        initMatrix_Zeros(&zeta);
+        initMatrix_Zeros(&place_holder);
 
-    printf("Previous Output Matrix...\n");
-    printMatrix(&tmp_prev_out);
-    printf("\n");
+        cloneMatrix(&place_holder, &guessed_outs[round-1]);
 
-    printMatrix(dotMatrix(&tmp_prev_out, elementMult(mulScalar(subMatrix(&tmp_curr_out, &tmp_y), 2.0), &der_tmp_curr_out)));
+        // Z = previous_outputs * current_weights + bias.
+        cloneMatrix(&zeta, addMatrix(dotMatrix(&place_holder, &net->weights_matrix[round]), &net->bias[round]));
 
-    printf("\n");
+        //printf("Z Matrix....\n");
+        //printMatrix(&zeta);
+        //printf("\n");
+
+        cloneMatrix(&place_holder, &tmp_y);
+
+        // Zeta = relu'(Z)
+        der_of_activ_func(&zeta);
+
+        if(round == net->n_layers - 1) {
+
+            //2 * (y - guessed) * Zeta = 2 * (y - guessed) * relu'(Z)
+            elementMult(&zeta, mulScalar(subMatrix(&place_holder, &guessed_outs[round]), 2.0*learning_rate));
+
+        }else{
+
+            // dC/da^(L-1) * Zeta = dC/da^(L-1) * relu'(Z)
+            elementMult(&zeta, &cost_with_respect_to_last_layer);
+        }
+
+        //printf("Zeta for layer %d.\n", round);
+        //printMatrix(&zeta);
+        //printf("\n");
+
+        matrix change_in_bias = {1,1};
+        initMatrix_Zeros(&change_in_bias);
+        cloneMatrix(&change_in_bias, &zeta);
+
+        printf("Change in bias for layer %d.\n", round);
+        printMatrix(&change_in_bias);
+        printf("\n");
+
+        addMatrix(&net->bias[round], &change_in_bias);
+
+        //Calculating 'cost with respect to previous layer' for last layer! = dC/da^(L-1)
+        //This is used in next layer, thus back propagation.
+        cloneMatrix(&place_holder, &net->weights_matrix[round]);
+        transMatrix(&zeta);
+        cloneMatrix(&cost_with_respect_to_last_layer, dotMatrix(&place_holder, &zeta));
+        transMatrix(&cost_with_respect_to_last_layer);
+
+        //printf("dC/da^(L-1) Matrix for layer %d.\n", round);
+        //printMatrix(&cost_with_respect_to_last_layer);
+        //printf("\n");
+
+        transMatrix(&zeta);
+        cloneMatrix(&place_holder, &guessed_outs[round - 1]);
+
+        transMatrix(&place_holder);
+
+        //printf("Previous layers output %d.\n", round);
+        //printMatrix(&place_holder);
+        //printf("\n");
+
+        cloneMatrix(&change_in_weights, dotMatrix(&place_holder, &zeta));
+
+        delMatrix(&zeta);
+        delMatrix(&place_holder);
+
+        //printf("Change in current weights for layer %d.\n", round);
+        //printMatrix(&change_in_weights);
+        //printf("\n");
+
+        addMatrix(&net->weights_matrix[round], &change_in_weights);
+
+        delMatrix(&change_in_weights);
+
+    }
+
+    delMatrix(&tmp_y);
+    delMatrix(&cost_with_respect_to_last_layer);
+
     return 0;
 }
 
 void activationFunc(matrix *m1){
     for(int i=0; i < m1->row; i++){
         for(int j=0; j < m1->col; j++){
-            //Activation using sigmoid function.
-            // sig(x) = 1 / (1 + e^(-x))
-            float neg_val = (-1) * m1->data[i][j];
-            m1->data[i][j] = 1 / ( 1 + exp(neg_val) );
+            //Activation using ReLu.
+            //if(m1->data[i][j] <= 0.0) m1->data[i][j] = 0.0;
+
+            //Activation using sigmoid.
+            //output = 1 / ( 1 + e^(-x) )
+            m1->data[i][j] = 1 / (1 + exp(-1 * m1->data[i][j]));
         }
     }
 }
 void der_of_activ_func(matrix *m1){
     for(int i=0; i < m1->row; i++){
         for(int j=0; j < m1->col; j++){
-            // sig(x) = 1 / (1 + e^(-x))
-            // Derivative of Sigmoid sig(x) = sig(x) * (1 - sig(x))
-            float neg_val = (-1) * m1->data[i][j];
-            float sigmoid = 1 / ( 1 + exp(neg_val) );
 
+            // Derivative of ReLu is estimated as step function at 0.
+            // Technically undefined at 0, but we define it as 0 at 0.
+            //(m1->data[i][j] > 0) ? (m1->data[i][j] = 1.0) : (m1->data[i][j] = 0.0);
+
+            // Derivative of sigmoid function.
+            float sigmoid = 1 / (1 + exp(-1 * m1->data[i][j]));
             m1->data[i][j] = sigmoid * (1 - sigmoid);
+
         }
     }
 }
@@ -213,16 +314,22 @@ void printANN(FC_ANN *net){
     printf("------------ Network Topology ------------\n");
     printf(" * Input Size         = %d\n", net->layer_sizes[0]);
     printf(" * Output Size        = %d\n", net->layer_sizes[net->n_layers-1]);
-    printf(" * Num Hidden Layers  = %d\n", net->n_layers);
-    printf(" * Hidden layer Sizes = | ");
+    printf(" * Num of Layers      = %d\n", net->n_layers);
+    printf(" * Layer Sizes        = | ");
     for(int i=0; i < net->n_layers; i++){
         printf("%d ", net->layer_sizes[i]);
     }
     printf("|\n");
-    printf("------------------------------------------\n");
-    printf("------------------------------------------\n\n");
-    printf("------------ Network Weights -------------\n");
-    for(int i=0; i < net->n_layers; i++) {
+    printf("-------------------------------------------\n");
+    printf("-------------------------------------------\n\n");
+    printf("------------ Network Topology -------------\n");
+
+    for(int i = 0; i < net->n_layers; i++) {
+        printf("------------ Biases Layer #%d ------------ \n", i);
+        printMatrix(&net->bias[i]);
+    }
+
+    for(int i = 0; i < net->n_layers; i++) {
         printf("------------ Hidden Layer #%d ------------ \n", i);
         printMatrix(&net->weights_matrix[i]);
     }

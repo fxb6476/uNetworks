@@ -6,9 +6,19 @@
 #include "matrix.h"
 
 int initMatrix_Zeros(matrix *mat){
-    mat->data = (float **)malloc(mat->row * sizeof(float *));
+    mat->data = (float **)calloc(mat->row, sizeof(float *));
+
+    if(!mat->data){
+        printf("Error allocating main data array!\n");
+        return -1;
+    }
+
     for(int i = 0; i < mat->row; i++) {
-        mat->data[i] = (float *)malloc(mat->col * sizeof(float));
+        mat->data[i] = (float *)calloc(mat->col, sizeof(float));
+        if(!mat->data){
+            printf("Error allocating sub array in data #%d!\n", i);
+            return -1;
+        }
     }
 
     for(int i=0; i < mat->row; i++){
@@ -22,22 +32,42 @@ int initMatrix_Random(matrix *mat){
 
     srand((long)time(NULL));
 
-    mat->data = (float **)malloc(mat->row * sizeof(float *));
+    mat->data = (float **)calloc(mat->row, sizeof(float *));
+
+    if(!mat->data){
+        printf("Error allocating main data array!\n");
+        return -1;
+    }
+
     for(int i = 0; i < mat->row; i++) {
-        mat->data[i] = (float *)malloc(mat->col * sizeof(float));
+        mat->data[i] = (float *)calloc(mat->col, sizeof(float));
+        if(!mat->data){
+            printf("Error allocating sub array in data #%d!\n", i);
+            return -1;
+        }
     }
 
     for(int i=0; i < mat->row; i++){
         for(int j=0; j < mat->col; j++){
-            mat->data[i][j] = (float)rand() / (float)RAND_MAX ;
+            mat->data[i][j] = ((float)rand() / (float)RAND_MAX) * (.00001) ;
         }
     }
     return 0;
 }
 int initMatrix_Ones(matrix *mat){
-    mat->data = (float **)malloc(mat->row * sizeof(float *));
+    mat->data = (float **)calloc(mat->row, sizeof(float *));
+
+    if(!mat->data){
+        printf("Error allocating main data array!\n");
+        return -1;
+    }
+
     for(int i = 0; i < mat->row; i++) {
-        mat->data[i] = (float *)malloc(mat->col * sizeof(float));
+        mat->data[i] = (float *)calloc(mat->col, sizeof(float));
+        if(!mat->data){
+            printf("Error allocating sub array in data #%d!\n", i);
+            return -1;
+        }
     }
 
     for(int i=0; i < mat->row; i++){
@@ -48,9 +78,18 @@ int initMatrix_Ones(matrix *mat){
     return 0;
 }
 int initMatrix_Data(matrix *mat, float dat[][3], int row, int col){
-    mat->data = (float **)malloc(mat->row * sizeof(float *));
+    mat->data = (float **)calloc(mat->row, sizeof(float *));
+    if(!mat->data){
+        printf("Error allocating main data array!\n");
+        return -1;
+    }
+
     for(int i = 0; i < mat->row; i++) {
-        mat->data[i] = (float *)malloc(mat->col * sizeof(float));
+        mat->data[i] = (float *)calloc(mat->col, sizeof(float));
+        if(!mat->data){
+            printf("Error allocating sub array in data #%d!\n", i);
+            return -1;
+        }
     }
 
     int min_row = (mat->row > row) ? row : mat->row;
@@ -74,9 +113,18 @@ int initMatrix_Data(matrix *mat, float dat[][3], int row, int col){
     return 0;
 }
 int initMatrix_Identity(matrix *mat){
-    mat->data = (float **)malloc(mat->row * sizeof(float *));
+    mat->data = (float **)calloc(mat->row, sizeof(float *));
+    if(!mat->data){
+        printf("Error allocating main data array!\n");
+        return -1;
+    }
+
     for(int i = 0; i < mat->row; i++) {
-        mat->data[i] = (float *)malloc(mat->col * sizeof(float));
+        mat->data[i] = (float *)calloc(mat->col, sizeof(float));
+        if(!mat->data){
+            printf("Error allocating sub array in data #%d!\n", i);
+            return -1;
+        }
     }
 
     for(int i=0; i < mat->row; i++){
@@ -106,9 +154,9 @@ int cloneMatrix(matrix *m1, matrix *m2){
     m1->col = m2->col;
 
     //Remake m1 mem-architecture...
-    m1->data = (float **)malloc(m1->row * sizeof(float *));
+    m1->data = (float **)calloc(m1->row, sizeof(float *));
     for(int i = 0; i < m1->row; i++) {
-        m1->data[i] = (float *)malloc(m1->col * sizeof(float));
+        m1->data[i] = (float *)calloc(m1->col, sizeof(float));
     }
 
     //Copy data from m2 to m1...
@@ -180,9 +228,9 @@ matrix * dotMatrix(matrix *m1, matrix *m2){
     //Create tmp data with new mem-architecture.
     int tmp_row = m1->row;
     int tmp_col = m2->col;
-    float **tmp = (float **)malloc(tmp_row * sizeof(float *));
+    float **tmp = (float **)calloc(tmp_row, sizeof(float *));
     for(int i=0; i < tmp_row; i++){
-        tmp[i] = (float *)malloc(tmp_col * sizeof(float));
+        tmp[i] = (float *)calloc(tmp_col, sizeof(float));
     }
 
     //Perform calcs and assign data to new tmp matrix.
@@ -206,9 +254,9 @@ matrix * dotMatrix(matrix *m1, matrix *m2){
     //Make new mem-architecture...
     m1->row = tmp_row;
     m1->col = tmp_col;
-    m1->data = (float **)malloc(m1->row * sizeof(float *));
+    m1->data = (float **)calloc(m1->row, sizeof(float *));
     for(int i = 0; i < m1->row; i++) {
-        m1->data[i] = (float *)malloc(m1->col * sizeof(float));
+        m1->data[i] = (float *)calloc(m1->col, sizeof(float));
     }
 
     //Copy tmp data into new m1 matrix with new mem-architecture...
@@ -243,9 +291,9 @@ int transMatrix(matrix *mat){
     //Create temporary data...
     int tmp_row = mat->col;
     int tmp_col = mat->row;
-    float **tmp = (float **)malloc(tmp_row * sizeof(float *));
+    float **tmp = (float **)calloc(tmp_row, sizeof(float *));
     for(int i=0; i < tmp_row; i++){
-        tmp[i] = (float *)malloc(tmp_col * sizeof(float));
+        tmp[i] = (float *)calloc(tmp_col, sizeof(float));
     }
 
     //Copy old matrix data to temp data, with new mem-architecture.
@@ -263,9 +311,9 @@ int transMatrix(matrix *mat){
     //Create new matrix with new mem-architecture...
     mat->row = tmp_row;
     mat->col = tmp_col;
-    mat->data = (float **)malloc(mat->row * sizeof(float *));
+    mat->data = (float **)calloc(mat->row, sizeof(float *));
     for(int i = 0; i < mat->row; i++) {
-        mat->data[i] = (float *)malloc(mat->col * sizeof(float));
+        mat->data[i] = (float *)calloc(mat->col, sizeof(float));
     }
 
     //Copy temporary data into new matrix...
@@ -284,13 +332,15 @@ int transMatrix(matrix *mat){
 }
 
 void printMatrix(matrix *mat){
+
     for(int i=0; i < mat->row; i++){
         printf("| ");
         for(int j=0; j < mat->col; j++){
-            printf("%.4f ", mat->data[i][j]);
+            printf("%.9f ", mat->data[i][j]);
         }
         printf("|\n");
     }
+
 }
 int reshapeMatrix(matrix *m1, int n_rows, int n_cols){
     if( (n_rows * n_cols) != (m1->row * m1->col)){
@@ -299,7 +349,7 @@ int reshapeMatrix(matrix *m1, int n_rows, int n_cols){
     }
 
     //Create tmp array...
-    float *tmp = malloc(m1->row * m1->col * sizeof(float));
+    float *tmp = calloc(m1->row * m1->col, sizeof(float));
     int tmp_count = 0;
 
     //Copy old matrix data to temp array...
@@ -322,9 +372,9 @@ int reshapeMatrix(matrix *m1, int n_rows, int n_cols){
     m1->col = n_cols;
 
     //Create new matrix with new mem-architecture...
-    m1->data = (float **)malloc(m1->row * sizeof(float *));
+    m1->data = (float **)calloc(m1->row, sizeof(float *));
     for(int i = 0; i < m1->row; i++) {
-        m1->data[i] = (float *)malloc(m1->col * sizeof(float));
+        m1->data[i] = (float *)calloc(m1->col, sizeof(float));
     }
 
     //Copy temporary data into new matrix...
