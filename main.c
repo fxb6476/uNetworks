@@ -61,8 +61,8 @@ int main(){
 
     printANN(&ann1);
 
-    float new_data[] = {3.0, 2.0};
-    printf("Testing on data it has never seen lol %.3f, %.3f...\n", new_data[0], new_data[1]);
+    float new_data[] = {1.0, 100.0};
+    printf("\nTesting on data it has never seen lol %.3f, %.3f...\n", new_data[0], new_data[1]);
 
     outputs = feedANN(&ann1, new_data, 2);
 
