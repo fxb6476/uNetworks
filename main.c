@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include "matrix.h"
 #include "ann.h"
+#include "mnist.h"
 
 int main(){
 
@@ -11,6 +12,18 @@ int main(){
     // This will try to teach the network to identify two clases.
     // Class 1 = everything above the identity line y = x.
     // Class 0 = everything bellow the identity line.
+
+    matrix *images = grabImages("./mnist_data/train-images-idx3-ubyte", 0, 10, 28, 28);
+    matrix *labels = grabLabels("./mnist_data/train-labels-idx1-ubyte", 0, 10);
+    printf("Got here\n");
+    reshapeMatrix(&images[0], 28, 28);
+    printMatrix(&images[0]);
+    printf("Label - %.1f\n", labels[0].data[0][0]);
+
+    printIdx("./mnist_data/train-images-idx3-ubyte");
+    printIdx("./mnist_data/train-labels-idx1-ubyte");
+
+    /*
     FC_ANN ann1 = {3, {2, 3, 1}};
     float in_data[][2] = {{1.0, 2.0},
                           {6.0, 10.0},
@@ -79,5 +92,6 @@ int main(){
     delANN(&ann1);
 
     printf("Good bye!\n");
+     */
     return 0;
 }

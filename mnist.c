@@ -39,7 +39,7 @@ matrix * grabImages(const char *file_name, int img_offset, int img_count, int im
 	// We make each matrix with 1 row. 
         // This makes it easier to pass the data to our neural network, transpose, reshape, etc.
 
-	char *datz = malloc(img_size);
+	unsigned char *datz = malloc(img_size);
 
         fread(datz, 1, img_size, file);
 
@@ -64,8 +64,10 @@ matrix * grabLabels(const char *file_name, int label_offset, int label_count){
 
 
     // Lets start by defining our output matrix.
-    matrix output = {1, label_count};
-    initMatrix_Zeros(&output);
+    matrix *output = (matrix *)malloc(sizeof(matrix) * 1);
+    output[0].row = 1;
+    output[0].col = label_count;
+    initMatrix_Zeros(&output[0]);
 
     // Now lets work with our file...
     FILE *file;
@@ -73,7 +75,7 @@ matrix * grabLabels(const char *file_name, int label_offset, int label_count){
     // Try to grab the file...
     if ( (file = fopen(file_name, "rb")) == NULL){
         printf("Error - Could not open %s file.\n", file_name);
-        return &output;
+        return output;
     }
 
     // Offset file pointer so we don't read the idx file header.
@@ -83,21 +85,21 @@ matrix * grabLabels(const char *file_name, int label_offset, int label_count){
     fseek(file, 8 + label_offset, SEEK_SET);
 
     // Now lets start actually grabbing data.
-    char *datz = malloc(label_count);
+    unsigned char *datz = malloc(label_count);
 
     fread(datz, 1, label_count, file);
 
     for (int i = 0; i < label_count; i++){
 
         // Copy data in datz buffer to our matrix but type cast to float.
-        output.data[0][i] = (float)(datz[i]);
+        output[0].data[0][i] = (float)(datz[i]);
 
     }
 
     free(datz);
 
     fclose(file);
-    return &output;
+    return output;
 }
 
 void printIdx(const char *file_name){
@@ -113,12 +115,18 @@ void printIdx(const char *file_name){
     printf("[+] Information for %s file!\n", file_name);
     fseek(file, 0, SEEK_SET);
 
-    int32_t magic_num;
-    int32_t num_items;
+    int32_t *magic_num = malloc(sizeof(int32_t) * 1);
+    int32_t *num_items = malloc(sizeof(int32_t) * 1);
 
-    fread(magic_num, sizeof(magic_num), 1, file);
-    fread(num_items, sizeof(num_items), 1, file);
+    fread(magic_num, sizeof(int32_t), 1, file);
+    fread(num_items, sizeof(int32_t), 1, file);
 
-    printf("[+] Magic number - %d\n[+] Number of Items - %d\n", magic_num, num_items);
+    int magic = *magic_num >> 16;
+    int items = *num_items >> 16;
+
+    printf("[+] Magic number - %d\n[+] Number of Items - %d\n", magic, items);
+
+    free(magic_num);
+    free(num_items);
 
 }

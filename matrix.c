@@ -336,7 +336,7 @@ void printMatrix(matrix *mat){
     for(int i=0; i < mat->row; i++){
         printf("| ");
         for(int j=0; j < mat->col; j++){
-            printf("%.9f ", mat->data[i][j]);
+            printf("%.1f ", mat->data[i][j]);
         }
         printf("|\n");
     }
