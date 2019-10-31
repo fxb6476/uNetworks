@@ -4,6 +4,7 @@ Toolkit for creating and training neural networks. Built entirely out of standar
 To build this program for now do:
 
 gcc -o output main.c matrix.c ann.c
+
 ./output
 
 Augment main.c to perform testing.
