@@ -18,12 +18,12 @@ matrix * grabImages(const char *file_name, int img_offset, int img_count, int im
 
     }
     
-    FILE *file
+    FILE *file;
 
     // Try to grab the file...
     if ( (file = fopen(file_name, "rb")) == NULL){
         printf("Error - Could not open %s file.\n", file_name);
-        return &output;
+        return output;
     }
 
     // Offset file pointer so we don't read the idx file header.
@@ -68,7 +68,7 @@ matrix * grabLabels(const char *file_name, int label_offset, int label_count){
     initMatrix_Zeros(&output);
 
     // Now lets work with our file...
-    FILE *file
+    FILE *file;
 
     // Try to grab the file...
     if ( (file = fopen(file_name, "rb")) == NULL){
@@ -90,7 +90,7 @@ matrix * grabLabels(const char *file_name, int label_offset, int label_count){
     for (int i = 0; i < label_count; i++){
 
         // Copy data in datz buffer to our matrix but type cast to float.
-        output.data[0][i] = float(datz[i]);
+        output.data[0][i] = (float)(datz[i]);
 
     }
 
@@ -101,12 +101,11 @@ matrix * grabLabels(const char *file_name, int label_offset, int label_count){
 }
 
 void printIdx(const char *file_name){
-    FILE *file
+    FILE *file;
 
     // Try to grab the file...
     if ( (file = fopen(file_name, "rb")) == NULL){
         printf("Error - Could not open %s file.\n", file_name);
-        return &output;
     }
     
     // Reading the magic number of the file.
