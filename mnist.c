@@ -13,8 +13,8 @@ matrix * grabImages(const char *file_name, int img_offset, int img_count, int im
     for (int i = 0; i < img_count; i++){
         // Initializing each matrix to 0's.
         output[i].row = 1;
-	output[i].col = img_size;
-	initMatrix_Zeros(&output[i]);
+	    output[i].col = img_size;
+	    initMatrix_Zeros(&output[i]);
 
     }
     
@@ -34,23 +34,22 @@ matrix * grabImages(const char *file_name, int img_offset, int img_count, int im
 
     // Now start grabbing data...
     for (int i = 0; i < img_count; i++){
+        // This will write 'img_size' bytes to the first row of each matrix.
+        // We make each matrix with 1 row.
+            // This makes it easier to pass the data to our neural network, transpose, reshape, etc.
 
-	// This will write 'img_size' bytes to the first row of each matrix.
-	// We make each matrix with 1 row. 
-        // This makes it easier to pass the data to our neural network, transpose, reshape, etc.
+        unsigned char *datz = malloc(img_size);
 
-	unsigned char *datz = malloc(img_size);
+            fread(datz, 1, img_size, file);
 
-        fread(datz, 1, img_size, file);
-
-	for(int j = 0; j < img_size; j++){
-	    // Copy character data from datz to matrix but typecast to float.
+        for(int j = 0; j < img_size; j++){
+            // Copy character data from datz to matrix but typecast to float.
             // Maybe an easier way of doing this?
             // Not sure if you can write a single byte to where a float should be in an array of floats?
             output[i].data[0][j] = (float)datz[j];
-	}
+        }
 
-	free(datz);
+        free(datz);
     }
 
     fclose(file);
@@ -61,13 +60,14 @@ matrix * grabLabels(const char *file_name, int label_offset, int label_count){
 
     // Fix this so output is something like this y = 5 so output = {0 0 0 0 1 0 0 0 0}
 
-
-
     // Lets start by defining our output matrix.
-    matrix *output = (matrix *)malloc(sizeof(matrix) * 1);
-    output[0].row = 1;
-    output[0].col = label_count;
-    initMatrix_Zeros(&output[0]);
+    matrix *output = (matrix *)malloc(sizeof(matrix) * label_count);
+
+    for(int i = 0; i < label_count; i++){
+        output[i].row = 1;
+        output[i].col = 10;
+        initMatrix_Zeros(&output[i]);
+    }
 
     // Now lets work with our file...
     FILE *file;
@@ -90,10 +90,9 @@ matrix * grabLabels(const char *file_name, int label_offset, int label_count){
     fread(datz, 1, label_count, file);
 
     for (int i = 0; i < label_count; i++){
-
         // Copy data in datz buffer to our matrix but type cast to float.
-        output[0].data[0][i] = (float)(datz[i]);
-
+        int index = (int)(datz[i]);
+        output[i].data[0][index] = 1.0;
     }
 
     free(datz);
@@ -123,6 +122,9 @@ void printIdx(const char *file_name){
 
     int magic = *magic_num >> 16;
     int items = *num_items >> 16;
+
+    magic = ((magic & 0x00ff) << 8)  + ( (magic & 0xff00) >> 8);
+    items = ((items & 0x00ff) << 8)  + ( (items & 0xff00) >> 8);
 
     printf("[+] Magic number - %d\n[+] Number of Items - %d\n", magic, items);
 

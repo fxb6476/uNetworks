@@ -222,6 +222,7 @@ matrix * dotMatrix(matrix *m1, matrix *m2){
     //printf("Rows - %d, Cols - %d\n", m2->row, m1->col);
     if (m1->col != m2->row){
         printf("Error (Dot Product): Matrix 1 cols must equal matrix 2 rows\n");
+        printf("Matrix 1 = (%d, %d), Matrix 2 = (%d, %d)\n", m1->row, m1->col, m2->row, m2->col);
         return m1;
     }
 
@@ -336,7 +337,7 @@ void printMatrix(matrix *mat){
     for(int i=0; i < mat->row; i++){
         printf("| ");
         for(int j=0; j < mat->col; j++){
-            printf("%.1f ", mat->data[i][j]);
+            printf("%.9f ", mat->data[i][j]);
         }
         printf("|\n");
     }

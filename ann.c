@@ -33,10 +33,10 @@ int initANN(FC_ANN *net){
     }
 
     //Create pointers to biases, each layer is just a matrix of biases...
-    net->bias = (matrix *)calloc(net->n_layers, sizeof(matrix *));
+    net->bias = (matrix *)calloc(net->n_layers, sizeof(matrix));
 
     //Create pointers to matrix's, each layer is just a matrix of weights...
-    net->weights_matrix = (matrix *)calloc(net->n_layers, sizeof(matrix *));
+    net->weights_matrix = (matrix *)calloc(net->n_layers, sizeof(matrix));
 
     if (!net->bias){
         printf("Error could not allocate matrix buffer for bias!\n");
@@ -126,7 +126,9 @@ matrix * feedANN(FC_ANN *net, float *input, int input_size){
     //printf("\n");
 
     for(int i=1; i < net->n_layers; i++){
-        matrix tmp_mat = {1, 1};
+        matrix tmp_mat;
+        tmp_mat.row = 1;
+        tmp_mat.col = 1;
         initMatrix_Ones(&tmp_mat);
 
         cloneMatrix(&tmp_mat, &tmp_mat_ptr[i-1]);
@@ -170,9 +172,9 @@ int backProp_ANN(FC_ANN *net, matrix *guessed_outs, float *output, int output_si
     cloneMatrix(&summed_error, &guessed_outs[net->n_layers-1]);
     subMatrix(&summed_error, &tmp_y);
 
-    printf("Output Error Matrix.\n");
-    printMatrix(&summed_error);
-    printf("\n");
+    //printf("Output Error Matrix.\n");
+    //printMatrix(&summed_error);
+    //printf("\n");
 
     //float total_error = 0.0;
     //for(int i = 0; i < summed_error.row; i++){
@@ -234,9 +236,9 @@ int backProp_ANN(FC_ANN *net, matrix *guessed_outs, float *output, int output_si
         initMatrix_Zeros(&change_in_bias);
         cloneMatrix(&change_in_bias, &zeta);
 
-        printf("Change in bias for layer %d.\n", round);
-        printMatrix(&change_in_bias);
-        printf("\n");
+        //printf("Change in bias for layer %d.\n", round);
+        //printMatrix(&change_in_bias);
+        //printf("\n");
 
         addMatrix(&net->bias[round], &change_in_bias);
 
