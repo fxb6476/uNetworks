@@ -2,7 +2,8 @@
  * Felix Blanco
  * - Set of strucs, definitions, and initializations for building and manipulating matrix's.
  * - ToDO
- * 1)
+ * 1) Define the new stack, concat, matrix functions.
+ *    a) shiftRows, shiftCols, popRows, popCols, vstackMat, hstackMat
  */
 
 #pragma once
@@ -74,7 +75,45 @@ void printMatrix(matrix *m1);
     --- og_rows * og_cols === new_rows *new_cols
 */
 int reshapeMatrix(matrix *m1, int n_rows, int n_cols);
+
+//Both of these copy data to new geometry ROW wise. Basically, row by row of the original matrix!
 int flatHorizMatrix(matrix *m1);
 int flatVertMatrix(matrix *m1);
+
+//Shifts the matrix rows up or down.
+//When the matrix gets shifted, the algorithm appends a row of 0's
+//such that the matrix keeps its original geometry.
+int shiftRows(matrix *m1, int num_shift, int top_bot);
+
+//Shifts the matrix cols left or right.
+//When the matrix gets shifted, the algorithm appends a col of 0's
+//such that the matrix keeps its original geometry.
+int shiftCols(matrix *m1, int num_shift, int lef_rit);
+
+//Returns a matrix of the rows you have popped out...
+//Pops rows out of m1 from the top!
+//Reshapes the matrix so its num of rows becomes smaller!
+// WARNING! - For good memory management if you don't want the returned matrix
+//            call delMatrix(&popRows(matrix *m1, int num_rows));
+//            The changes will still be apparent in m1.
+matrix * popRows(matrix *m1, int num_rows);
+
+//Returns a matrix of the columns you have popped out...
+//Pops cols out of m1 from the left!
+//Reshapes the matrix so its num of cols becomes smaller!
+// WARNING! - For good memory management if you don't want the returned matrix
+//            call delMatrix(&popCols(matrix *m1, int num_rows));
+//            The changes will still be apparent in m1.
+matrix * popCols(matrix *m1, int num_cols);
+
+//Stack matrix 2 to the bottom or top of matrix 1
+//Last parameter defines top or bottom stacking...
+// top_bot ? top_append : bot_append;
+int vstackMat(matrix *m1, matrix *m2, int top_bot);
+
+//Stack matrix 2 to the left or right of matrix 1
+//Last parameter defines top or bottom stacking...
+// lef_rit ? left_append : right_append;
+int hstackMat(matrix *m1, matrix *m2, int lef_rit);
 
 #endif

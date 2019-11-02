@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include "matrix.h"
 
+//Matrix Init Functions ------------------------------------------------------------------------------------------------
 int initMatrix_Zeros(matrix *mat){
     mat->data = (float **)calloc(mat->row, sizeof(float *));
 
@@ -136,6 +137,7 @@ int initMatrix_Identity(matrix *mat){
     return 0;
 }
 
+//Matrix Management Functions. ------------------------------------------------------------------------------------------------
 int delMatrix(matrix *mat){
     for(int i=0; i < mat->row; i++){
         free(mat->data[i]);
@@ -170,6 +172,7 @@ int cloneMatrix(matrix *m1, matrix *m2){
     return 0;
 }
 
+//Matrix Arithmetic Functions. ------------------------------------------------------------------------------------------------
 matrix * addScalar(matrix *m1, float d2){
     for(int i=0; i < m1->row; i++){
         for(int j=0; j < m1->col; j++){
@@ -288,6 +291,20 @@ matrix * elementMult(matrix *m1, matrix *m2){
     return m1;
 }
 
+//Matrix Debug Functions. ------------------------------------------------------------------------------------------------
+void printMatrix(matrix *mat){
+
+    for(int i=0; i < mat->row; i++){
+        printf("| ");
+        for(int j=0; j < mat->col; j++){
+            printf("%.9f ", mat->data[i][j]);
+        }
+        printf("|\n");
+    }
+
+}
+
+//Matrix Geometry Functions ------------------------------------------------------------------------------------------------
 int transMatrix(matrix *mat){
     //Create temporary data...
     int tmp_row = mat->col;
@@ -330,18 +347,6 @@ int transMatrix(matrix *mat){
     }
     free(tmp);
     return 0;
-}
-
-void printMatrix(matrix *mat){
-
-    for(int i=0; i < mat->row; i++){
-        printf("| ");
-        for(int j=0; j < mat->col; j++){
-            printf("%.9f ", mat->data[i][j]);
-        }
-        printf("|\n");
-    }
-
 }
 int reshapeMatrix(matrix *m1, int n_rows, int n_cols){
     if( (n_rows * n_cols) != (m1->row * m1->col)){

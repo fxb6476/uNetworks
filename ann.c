@@ -133,7 +133,7 @@ matrix * feedANN(FC_ANN *net, float *input, int input_size){
 
         cloneMatrix(&tmp_mat, &tmp_mat_ptr[i-1]);
 
-        activationFunc(addMatrix(dotMatrix(&tmp_mat, &net->weights_matrix[i]), &net->bias[i]));
+        activateSigmoid(addMatrix(dotMatrix(&tmp_mat, &net->weights_matrix[i]), &net->bias[i]));
 
         cloneMatrix(&tmp_mat_ptr[i], &tmp_mat);
 
@@ -215,7 +215,7 @@ int backProp_ANN(FC_ANN *net, matrix *guessed_outs, float *output, int output_si
         cloneMatrix(&place_holder, &tmp_y);
 
         // Zeta = relu'(Z)
-        der_of_activ_func(&zeta);
+        derivativeSigmoid(&zeta);
 
         if(round == net->n_layers - 1) {
 
@@ -283,25 +283,19 @@ int backProp_ANN(FC_ANN *net, matrix *guessed_outs, float *output, int output_si
     return 0;
 }
 
-void activationFunc(matrix *m1){
+// Activation Functions. ------------------------------------------------------------------------------------------------
+void activateSigmoid(matrix *m1){
     for(int i=0; i < m1->row; i++){
         for(int j=0; j < m1->col; j++){
-            //Activation using ReLu.
-            //if(m1->data[i][j] <= 0.0) m1->data[i][j] = 0.0;
-
             //Activation using sigmoid.
             //output = 1 / ( 1 + e^(-x) )
             m1->data[i][j] = 1 / (1 + exp(-1 * m1->data[i][j]));
         }
     }
 }
-void der_of_activ_func(matrix *m1){
+void derivativeSigmoid(matrix *m1){
     for(int i=0; i < m1->row; i++){
         for(int j=0; j < m1->col; j++){
-
-            // Derivative of ReLu is estimated as step function at 0.
-            // Technically undefined at 0, but we define it as 0 at 0.
-            //(m1->data[i][j] > 0) ? (m1->data[i][j] = 1.0) : (m1->data[i][j] = 0.0);
 
             // Derivative of sigmoid function.
             float sigmoid = 1 / (1 + exp(-1 * m1->data[i][j]));
@@ -310,8 +304,26 @@ void der_of_activ_func(matrix *m1){
         }
     }
 }
+void activateRelu(matrix *m1){
+    for(int i=0; i < m1->row; i++){
+        for(int j=0; j < m1->col; j++){
+            //Activation using ReLu.
+            if(m1->data[i][j] <= 0.0) m1->data[i][j] = 0.0;
+        }
+    }
+}
+void derivativeRelu(matrix *m1){
+    for(int i=0; i < m1->row; i++){
+        for(int j=0; j < m1->col; j++){
 
-//Prints the net
+            // Derivative of ReLu is estimated as step function at 0.
+            // Technically undefined at 0, but we define it as 0 at 0.
+            (m1->data[i][j] > 0) ? (m1->data[i][j] = 1.0) : (m1->data[i][j] = 0.0);
+        }
+    }
+}
+
+//Debug Network Functions. ------------------------------------------------------------------------------------------------
 void printANN(FC_ANN *net){
     printf("------------ Network Topology ------------\n");
     printf(" * Input Size         = %d\n", net->layer_sizes[0]);
