@@ -14,9 +14,13 @@ Augment main.c to perform testing.
 
 Felix -
 1) RNN 
+
   a) LSTM
+  
   b) If u want to die, do bi-directional LSTM.
+  
   c) gru's? rodney wants this lol
+  
 2) Matrix concats (vstack, hstack)
   a) Test init_Xavier() - ANN
 3) Cross Entropy Loss instead of squared error
