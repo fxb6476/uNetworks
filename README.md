@@ -2,11 +2,11 @@
 Toolkit for creating and training neural networks. Built entirely out of standard C libraries. Aimed at bringing machine learning to edge devices.
 
 ### Currently we support the following network architectures:
-> (Fully Connected) - Artificial Neural Networks
+> ANN -(Fully Connected) Artificial Neural Networks
 
-> Fully Connected Neural Networks
+> RNN - Recurrent Neural Networks
 
-> Convolutional Layering - Can be used to create CNN's
+> CNN - Convolutional Neural Networks. You can also use the library to just add Conv Layers to other networks.
 
 To build this program for now do:
 
