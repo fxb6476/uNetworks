@@ -1,9 +1,11 @@
 # uNetworks
 Toolkit for creating and training neural networks. Built entirely out of standard C libraries. Aimed at bringing machine learning to edge devices.
 
-Currently we support the following network architectures:
+### Currently we support the following network architectures:
 > (Fully Connected) - Artificial Neural Networks
+
 > Fully Connected Neural Networks
+
 > Convolutional Layering - Can be used to create CNN's
 
 To build this program for now do:
