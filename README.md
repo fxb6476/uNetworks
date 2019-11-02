@@ -19,6 +19,11 @@ Felix -
   b) gru's? rodney wants this lol
 2) Matrix concats (vstack, hstack)
   a) Test init_Xavier() - ANN
+3) Cross Entropy Loss instead of squared error
+  a) 1 class cross entropy
+  b) multi class
+4) Output (Activation function) - softmax()
+5) Send rodney volume example
 
 Rodney -
 1) CNNS
@@ -28,3 +33,4 @@ Rodney -
   d) convolution
 2) Optomizers
   a) Adam
+3) Kullback-leibler loss instead of squared error
