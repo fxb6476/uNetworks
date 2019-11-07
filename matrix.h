@@ -2,8 +2,6 @@
  * Felix Blanco
  * - Set of strucs, definitions, and initializations for building and manipulating matrix's.
  * - ToDO
- * 1) Define the new stack, concat, matrix functions.
- *    a) shiftRows, shiftCols
  */
 
 #pragma once

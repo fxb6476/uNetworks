@@ -24,7 +24,7 @@ Felix -
   a) LSTM
   b) If u want to die, do bi-directional LSTM.  
   c) gru's? rodney wants this lol
-2) Matrix concats (vstack, hstack)
+2) Matrix concats (vstack, hstack) - DONE/TESTED!
   a) Test init_Xavier() - ANN
 3) Cross Entropy Loss instead of squared error
   a) 1 class cross entropy
