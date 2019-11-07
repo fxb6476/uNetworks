@@ -402,3 +402,206 @@ int flatVertMatrix(matrix *m1) {
     reshapeMatrix(m1, m1->row * m1-> col, 1);
     return 0;
 }
+
+matrix * vstackMat(matrix *m1, matrix *m2, int top_bot){
+
+    matrix *output = malloc(sizeof(matrix) * 1);
+    output->row = m1->row + m2->row;
+    output->col = m1->col;
+    initMatrix_Zeros(output);
+
+    if (m1->col != m2->col){
+        printf("Error - Can not concat vertically matrix's with different number of columns!!!\n");
+        return output;
+    }
+
+    if (top_bot) {
+        // Appending to the top!
+        addMatrix(output, m2);
+
+        // Add the other matrix manually...
+        int k=0;
+        for(int i = m2->row; i < output->row; i++){
+            for(int j = 0; j < m1->col; j++){
+                output->data[i][j] = m1->data[k][j];
+            }
+            k++;
+        }
+
+    }else{
+        // Appending to the bottom!
+        addMatrix(output, m1);
+
+        // Add the other matrix manually...
+        int k=0;
+        for(int i = m1->row; i < output->row; i++){
+            for(int j = 0; j < m2->col; j++){
+                output->data[i][j] = m2->data[k][j];
+            }
+            k++;
+        }
+    }
+
+    return output;
+}
+matrix * hstackMat(matrix *m1, matrix *m2, int lef_rit){
+
+    matrix *output = malloc(sizeof(matrix) * 1);
+    output->row = m1->row;
+    output->col = m1->col + m2->col;
+    initMatrix_Zeros(output);
+
+    if (m1->row != m2->row){
+        printf("Error - Can not concat horizontally matrix's with different number of rows!!!\n");
+        return output;
+    }
+
+    if (lef_rit) {
+        // Appending to the left!
+        addMatrix(output, m2);
+
+        // Add the other matrix manually...
+        for(int i = 0; i < m1->row; i++){
+
+            int k=0;
+            for(int j = m2->col; j < output->col; j++){
+                output->data[i][j] = m1->data[i][k];
+                k++;
+            }
+        }
+
+    }else{
+        // Appending to the right!
+        addMatrix(output, m1);
+
+        // Add the other matrix manually...
+        for(int i = 0; i < m2->row; i++){
+
+            int k=0;
+            for(int j = m1->col; j < output->col; j++){
+                output->data[i][j] = m2->data[i][k];
+                k++;
+            }
+        }
+    }
+
+    return output;
+}
+
+int popRows(matrix *m1, int num_rows, int top_bot){
+    // All rows get pushed up!!
+    matrix tmp;
+    tmp.row = m1->row - num_rows;
+    tmp.col = m1->col;
+    initMatrix_Zeros(&tmp);
+
+    if (num_rows >= m1->row){
+        printf("Error (PopRows) - Can not pop more rows than the matrix has, or all the rows out of the matrix.\n");
+        return 1;
+    }else if (num_rows <= 0){
+        printf("Error (PopRows) - Can not pop 0 or negative rows.\n");
+        return 1;
+    }
+
+    if (top_bot){
+        // Popping from the top!!
+        int k =0;
+        for(int i = num_rows; i < m1->row; i++){
+            for(int j = 0; j < m1->col; j++){
+                tmp.data[k][j] = m1->data[i][j];
+            }
+            k++;
+        }
+    }else{
+        // Popping from the bottom!!
+        int k =0;
+        for(int i = 0; i < (m1->row - num_rows); i++){
+            for(int j = 0; j < m1->col; j++){
+                tmp.data[k][j] = m1->data[i][j];
+            }
+            k++;
+        }
+    }
+
+    cloneMatrix(m1, &tmp);
+    delMatrix(&tmp);
+    return 0;
+}
+int popCols(matrix *m1, int num_cols, int lef_rit){
+
+    matrix tmp;
+    tmp.row = m1->row;
+    tmp.col = m1->col - num_cols;
+    initMatrix_Zeros(&tmp);
+
+    if (num_cols >= m1->col){
+        printf("Error (PopCols) - Can not pop more cols than the matrix has, or all the cols out of the matrix.\n");
+        return 1;
+    }else if (num_cols <= 0){
+        printf("Error (PopCols) - Can not pop 0 or negative cols.\n");
+        return 1;
+    }
+
+    if(lef_rit){
+        // Popping from the left!
+        for(int i = 0; i < m1->row; i++){
+            int k =0;
+            for(int j = num_cols; j < m1->col; j++){
+                tmp.data[i][k] = m1->data[i][j];
+                k++;
+            }
+        }
+    }else{
+        // Popping from the right!
+        for(int i = 0; i < m1->row; i++){
+            int k =0;
+            for(int j = 0; j < (m1->col - num_cols); j++){
+                tmp.data[i][k] = m1->data[i][j];
+                k++;
+            }
+        }
+    }
+
+    cloneMatrix(m1, &tmp);
+    delMatrix(&tmp);
+
+    return 0;
+}
+
+// Add definition for these!
+int shiftRows(matrix *m1, int num_shift, int top_bot){
+
+    if(popRows(m1, num_shift, top_bot)){
+        return 1;
+    }
+
+    matrix zeros;
+    zeros.row = num_shift;
+    zeros.col = m1->col;
+    initMatrix_Zeros(&zeros);
+
+    //Used to catch matrix so we can clean up later with delete.
+    matrix *final = vstackMat(m1, &zeros, !top_bot);
+    cloneMatrix(m1, final);
+
+    delMatrix(final);
+    return 0;
+}
+int shiftCols(matrix *m1, int num_shift, int lef_rit){
+    if(popCols(m1, num_shift, lef_rit)){
+        return 1;
+    }
+
+    matrix zeros;
+    zeros.row = m1->row;
+    zeros.col = num_shift;
+    initMatrix_Zeros(&zeros);
+
+    //Used to catch matrix so we can clean up later with delete.
+    matrix *final = hstackMat(m1, &zeros, !lef_rit);
+
+    cloneMatrix(m1, final);
+
+    delMatrix(final);
+    return 0;
+}

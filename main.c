@@ -8,6 +8,49 @@
 
 int main(){
 
+    matrix m1;
+    m1.row = 6;
+    m1.col = 6;
+    initMatrix_Identity(&m1);
+    printMatrix(&m1);
+    printf("\n");
+
+    //Test
+    shiftRows(&m1, 3, 0);
+    printMatrix(&m1);
+    printf("\n");
+
+    shiftCols(&m1, 1, 0);
+    printMatrix(&m1);
+    printf("\n");
+
+    popRows(&m1, 3, 1);
+    printMatrix(&m1);
+    printf("\n");
+
+    popCols(&m1, 1, 1);
+    printMatrix(&m1);
+    printf("\n");
+
+    matrix m2;
+    m2.row = 6;
+    m2.col = m1.col;
+    initMatrix_Random(&m2);
+
+    matrix m3;
+    m3.row = m1.row;
+    m3.col = 4;
+    initMatrix_Ones(&m3);
+
+    matrix *vertical = vstackMat(&m1, &m2, 0);
+    printMatrix(vertical);
+    printf("\n");
+
+    matrix *horizontal = hstackMat(&m1, &m3, 0);
+    printMatrix(horizontal);
+    printf("\n");
+
+    /*
     // TESTING FC_ANN
     // This will try to teach the network to identify two clases.
     // Class 1 = everything above the identity line y = x.
@@ -106,6 +149,6 @@ int main(){
     delANN(&ann1);
 
     printf("Good bye!\n");
-
+    */
     return 0;
 }

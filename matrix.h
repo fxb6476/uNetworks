@@ -3,7 +3,7 @@
  * - Set of strucs, definitions, and initializations for building and manipulating matrix's.
  * - ToDO
  * 1) Define the new stack, concat, matrix functions.
- *    a) shiftRows, shiftCols, popRows, popCols, vstackMat, hstackMat
+ *    a) shiftRows, shiftCols
  */
 
 #pragma once
@@ -90,30 +90,24 @@ int shiftRows(matrix *m1, int num_shift, int top_bot);
 //such that the matrix keeps its original geometry.
 int shiftCols(matrix *m1, int num_shift, int lef_rit);
 
-//Returns a matrix of the rows you have popped out...
-//Pops rows out of m1 from the top!
-//Reshapes the matrix so its num of rows becomes smaller!
-// WARNING! - For good memory management if you don't want the returned matrix
-//            call delMatrix(&popRows(matrix *m1, int num_rows));
-//            The changes will still be apparent in m1.
-matrix * popRows(matrix *m1, int num_rows);
+// Reshapes the matrix so its num of rows becomes smaller!
+// Pops either from the top or bottom of m1.
+// M1 now no longer has those rows!
+int popRows(matrix *m1, int num_rows, int top_bot);
 
-//Returns a matrix of the columns you have popped out...
-//Pops cols out of m1 from the left!
-//Reshapes the matrix so its num of cols becomes smaller!
-// WARNING! - For good memory management if you don't want the returned matrix
-//            call delMatrix(&popCols(matrix *m1, int num_rows));
-//            The changes will still be apparent in m1.
-matrix * popCols(matrix *m1, int num_cols);
+// Reshapes the matrix so its num of cols becomes smaller!
+// Pops either from the left or right of m1.
+// M1 now no longer has those cols!
+int popCols(matrix *m1, int num_cols, int lef_rit);
 
 //Stack matrix 2 to the bottom or top of matrix 1
 //Last parameter defines top or bottom stacking...
 // top_bot ? top_append : bot_append;
-int vstackMat(matrix *m1, matrix *m2, int top_bot);
+matrix * vstackMat(matrix *m1, matrix *m2, int top_bot);
 
 //Stack matrix 2 to the left or right of matrix 1
 //Last parameter defines top or bottom stacking...
 // lef_rit ? left_append : right_append;
-int hstackMat(matrix *m1, matrix *m2, int lef_rit);
+matrix * hstackMat(matrix *m1, matrix *m2, int lef_rit);
 
 #endif
